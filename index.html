@@ -34,6 +34,17 @@
   .tagline { text-align: center; padding-top: 36px; padding-bottom: 44px; }
   .tagline h1 { margin: 0 0 12px; font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 650; line-height: 1.25; }
   .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
+  .to-videos {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 8px 18px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .to-videos:hover { background: rgba(79, 216, 240, 0.12); }
   section { padding: 48px 0; border-top: 1px solid var(--border); }
   h2 { margin: 0 0 24px; font-size: 1.5rem; }
   /* Cards of one width, centred: a short last row sits in the middle. */
@@ -76,6 +87,7 @@
     <div class="wrap tagline">
       <h1>Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.</h1>
       <p>SimNexus reúne en un mismo escenario aviones, vehículos y drones, controlados por personas o por inteligencia artificial, sobre el terreno real.</p>
+      <a class="to-videos" href="#videos">▶ Ver los vídeos</a>
     </div>
 
     <section>
@@ -112,7 +124,7 @@
 
     <section>
       <div class="wrap">
-        <h2>Vídeos</h2>
+        <h2 id="videos">Vídeos</h2>
         <div class="videos">
           <figure>
             <figcaption>Presentación de la aplicación</figcaption>
