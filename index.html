@@ -36,7 +36,10 @@
   .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
   section { padding: 48px 0; border-top: 1px solid var(--border); }
   h2 { margin: 0 0 24px; font-size: 1.5rem; }
-  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  /* Cards of one width, centred: a short last row sits in the middle. */
+  .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .grid .card { flex: 0 1 246px; }
+  @media (max-width: 560px) { .grid .card { flex-basis: 100%; } }
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
