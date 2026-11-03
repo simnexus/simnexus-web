@@ -56,7 +56,7 @@
   .videos { display: grid; gap: 32px; max-width: 620px; margin: 0 auto; }
   .videos figure { margin: 0; }
   .videos video { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); background: #000; display: block; }
-  .videos figcaption { margin-top: 8px; color: var(--muted); font-size: 0.95rem; }
+  .videos figcaption { margin-bottom: 10px; color: var(--text); font-size: 1.05rem; font-weight: 600; }
   .contact { text-align: center; }
   .contact p { color: var(--muted); }
   a { color: var(--accent); }
@@ -80,12 +80,12 @@
         <h2>Vídeos</h2>
         <div class="videos">
           <figure>
-            <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
             <figcaption>Presentación de la aplicación</figcaption>
+            <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
           </figure>
           <figure>
-            <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
             <figcaption>Demo de funcionalidad: planificar, pilotar y operar</figcaption>
+            <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
           </figure>
         </div>
       </div>
