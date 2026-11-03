@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimNexus</title>
+<meta name="description" content="Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.">
+<meta property="og:title" content="SimNexus">
+<meta property="og:description" content="Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.">
+<meta property="og:image" content="img/hero.png">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<style>
+  :root {
+    --bg: #0b121a;
+    --surface: #101923;
+    --raised: #172232;
+    --border: #29394a;
+    --text: #e5edf4;
+    --muted: #a7bacb;
+    --accent: #4fd8f0;
+    --warm: #ff9a4d;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  header.hero { background: #09141d; border-bottom: 1px solid var(--border); }
+  header.hero img { display: block; width: 100%; max-width: 1400px; height: auto; margin: 0 auto; }
+  .tagline { text-align: center; padding-top: 36px; padding-bottom: 44px; }
+  .tagline h1 { margin: 0 0 12px; font-size: clamp(1.5rem, 3.4vw, 2.2rem); font-weight: 650; line-height: 1.25; }
+  .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
+  section { padding: 48px 0; border-top: 1px solid var(--border); }
+  h2 { margin: 0 0 24px; font-size: 1.5rem; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 1.08rem; color: var(--accent); }
+  .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+  .uses { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
+  .uses li {
+    background: var(--raised);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.95rem;
+  }
+  .contact { text-align: center; }
+  .contact p { color: var(--muted); }
+  a { color: var(--accent); }
+  footer { padding: 24px 0 40px; text-align: center; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+  footer img { width: 40px; height: 40px; border-radius: 8px; vertical-align: middle; margin-right: 8px; }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <img src="img/hero.png" alt="SimNexus: un caza formado por circuitos, con un chip de IA, un tanque y un dron, junto al nombre SimNexus">
+  </header>
+
+  <main>
+    <div class="wrap tagline">
+      <h1>Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.</h1>
+      <p>SimNexus reúne en un mismo escenario aviones, vehículos y drones, controlados por personas o por inteligencia artificial, sobre el terreno real.</p>
+    </div>
+
+    <section>
+      <div class="wrap">
+        <h2>Qué ofrece</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Escenarios aire, tierra y drones</h3>
+            <p>Misiones con aeronaves, vehículos y drones sobre terreno real, con sensores, armas y contramedidas.</p>
+          </div>
+          <div class="card">
+            <h3>Inteligencia artificial</h3>
+            <p>Entidades que persiguen, evaden y deciden por sí mismas, con pilotos entrenados mediante aprendizaje por refuerzo.</p>
+          </div>
+          <div class="card">
+            <h3>Puestos de pilotaje</h3>
+            <p>Cualquier entidad se puede tomar y pilotar con mando o joystick, con su propio modelo de vuelo y sus instrumentos.</p>
+          </div>
+          <div class="card">
+            <h3>Comunicaciones tácticas</h3>
+            <p>Radios de voz y enlaces de datos con alcance, interferencias y propagación, y un monitor que muestra cada mensaje.</p>
+          </div>
+          <div class="card">
+            <h3>Visión táctica</h3>
+            <p>Un visor 2D y 3D del escenario con todas las entidades, sus tareas y lo que detectan.</p>
+          </div>
+          <div class="card">
+            <h3>Varios puestos a la vez</h3>
+            <p>Instructor, pilotos y operadores en sus propios equipos, conectados al mismo ejercicio.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>Para qué sirve</h2>
+        <ul class="uses">
+          <li>Entrenamiento</li>
+          <li>Análisis de misiones</li>
+          <li>Pruebas de tácticas y procedimientos</li>
+          <li>Desarrollo y prueba de IA</li>
+          <li>Demostraciones</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="contact">
+      <div class="wrap">
+        <h2>Contacto</h2>
+        <p>Escríbenos a través de nuestra página de LinkedIn.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap"><img src="img/emblema.png" alt="">SimNexus</div>
+  </footer>
+</body>
+</html>
