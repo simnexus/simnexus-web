@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="es">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SimNexus</title>
-<meta name="description" content="Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.">
+<meta name="description" content="AI-driven tactical simulation to train, analyse and test air, land and drone operations.">
 <meta property="og:title" content="SimNexus">
-<meta property="og:description" content="Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.">
+<meta property="og:description" content="AI-driven tactical simulation to train, analyse and test air, land and drone operations.">
 <meta property="og:image" content="img/hero.png">
 <link rel="icon" type="image/png" href="img/favicon.png">
 <style>
@@ -28,21 +28,28 @@
     color: var(--text);
     font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
+  /* One language at a time: the other's texts are hidden. */
+  html[data-lang="en"] [lang="es"], html[data-lang="es"] [lang="en"] { display: none !important; }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
-  header.hero { background: #09141d; border-bottom: 1px solid var(--border); }
+  header.hero { background: #09141d; border-bottom: 1px solid var(--border); position: relative; }
   header.hero img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; filter: brightness(0.82); }
+  .lang-switch {
+    position: absolute; top: 12px; right: 16px;
+    display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+    background: rgba(11, 18, 26, 0.85);
+  }
+  .lang-switch button {
+    background: transparent; color: var(--muted); border: 0; padding: 4px 12px;
+    font: 600 0.85rem system-ui, sans-serif; cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] { background: var(--accent); color: #062029; }
   .tagline { text-align: center; padding-top: 36px; padding-bottom: 44px; }
   .tagline h1 { margin: 0 0 12px; font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 650; line-height: 1.25; }
   .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
   .to-videos {
-    display: inline-block;
-    margin-top: 22px;
-    padding: 8px 18px;
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 0.95rem;
+    display: inline-block; margin-top: 22px; padding: 8px 18px;
+    border: 1px solid var(--accent); border-radius: 999px; color: var(--accent);
+    text-decoration: none; font-size: 0.95rem;
   }
   .to-videos:hover { background: rgba(79, 216, 240, 0.12); }
   section { padding: 48px 0; border-top: 1px solid var(--border); }
@@ -51,22 +58,20 @@
   .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
   .grid .card { flex: 0 1 246px; }
   @media (max-width: 560px) { .grid .card { flex-basis: 100%; } }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
   .card h3 { margin: 0 0 8px; font-size: 1.08rem; color: var(--accent); }
   .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+  .suite-intro { margin: -8px 0 24px; color: var(--muted); }
+  .app-icon { width: 60px; height: 60px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(79, 216, 240, 0.18)); }
+  .app-icon .tile { fill: url(#sn-tile); stroke: rgba(79, 216, 240, 0.35); stroke-width: 1; }
+  .app-icon .glyph { fill: none; stroke: url(#sn-stroke); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .app-icon .dot { fill: #4fd8f0; stroke: none; }
+  .app-icon .core { fill: rgba(255, 154, 77, 0.25); stroke: #ff9a4d; }
+  .app-icon .rec { fill: #ff5a5a; stroke: none; filter: drop-shadow(0 0 4px #ff5a5a); }
+  .app-icon .flame { stroke: #ff9a4d; }
+  .app:hover .app-icon { filter: drop-shadow(0 0 14px rgba(79, 216, 240, 0.35)); }
   .uses { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
-  .uses li {
-    background: var(--raised);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 0.95rem;
-  }
+  .uses li { background: var(--raised); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 0.95rem; }
   .videos { display: grid; gap: 32px; max-width: 620px; margin: 0 auto; }
   .videos figure { margin: 0; }
   .videos video { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); background: #000; display: block; }
@@ -79,59 +84,139 @@
 </style>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="sn-stroke" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#4fd8f0"/><stop offset=".6" stop-color="#8fb8ff"/><stop offset="1" stop-color="#ff9a4d"/>
+      </linearGradient>
+      <radialGradient id="sn-tile" cx=".3" cy=".25" r=".9">
+        <stop offset="0" stop-color="#1d3346"/><stop offset="1" stop-color="#0d1722"/>
+      </radialGradient>
+    </defs>
+  </svg>
   <header class="hero">
-    <img src="img/hero.png" alt="SimNexus: un caza formado por circuitos, con un chip de IA, un tanque y un dron, junto al nombre SimNexus">
+    <img src="img/hero.png" alt="SimNexus: a fighter drawn in circuits with an AI chip, a tank and a drone, next to the name SimNexus">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+    </div>
   </header>
 
   <main>
     <div class="wrap tagline">
-      <h1>Simulación táctica con IA para entrenar, analizar y probar operaciones aéreas, terrestres y con drones.</h1>
-      <p>SimNexus reúne en un mismo escenario aviones, vehículos y drones, controlados por operadores o por inteligencia artificial, sobre el terreno real.</p>
-      <a class="to-videos" href="#videos">▶ Ver vídeos</a>
+      <h1 lang="en">Every domain. One battlespace. Real decisions.</h1>
+      <h1 lang="es">Todos los dominios. Un campo de batalla. Decisiones reales.</h1>
+      <p lang="en">Aircraft, vehicles and drones over real terrain, flown by your crews or by AI pilots that learn to win.</p>
+      <p lang="es">Aviones, vehículos y drones sobre terreno real, pilotados por tus tripulaciones o por pilotos de IA que aprenden a ganar.</p>
+      <a class="to-videos" href="#videos"><span lang="en">▶ Watch the videos</span><span lang="es">▶ Ver vídeos</span></a>
     </div>
 
     <section>
       <div class="wrap">
-        <h2>Qué ofrece</h2>
+        <h2><span lang="en">The suite</span><span lang="es">La suite</span></h2>
+        <p class="suite-intro" lang="en">Eight applications that work together: each station runs the one its role needs.</p>
+        <p class="suite-intro" lang="es">Ocho aplicaciones que trabajan juntas: cada puesto usa la que necesita su papel.</p>
+        <div class="grid">
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 9c9 6 13 17 10 30l-10 7-10-7C19 26 23 15 32 9z"/><circle cx="32" cy="24" r="4.5"/><path d="M22 37l-8 6 2 10 9-6M42 37l8 6-2 10-9-6"/><path d="M27 48l5 9 5-9" class="flame"/><path d="M32 30v8" opacity=".5"/></g></svg>
+            <h3>SimNexus Launcher</h3>
+            <p lang="en">Starts and organises the stations of an exercise on each computer.</p>
+            <p lang="es">Arranca y organiza los puestos de un ejercicio en cada equipo.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="13" opacity=".7"/><circle cx="32" cy="32" r="5" opacity=".5"/><path d="M32 7v9M32 48v9M7 32h9M48 32h9"/><path d="M32 32L46 20" stroke-width="3"/><circle cx="41" cy="40" r="2.2" class="dot"/><circle cx="22" cy="23" r="1.8" class="dot"/></g></svg>
+            <h3>SimNexus Tactical</h3>
+            <p lang="en">The 2D and 3D tactical view: plan the mission, task the entities, follow the scenario and its communications.</p>
+            <p lang="es">El visor táctico 2D y 3D: planificar la misión, asignar tareas, seguir el escenario y sus comunicaciones.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 5l3 9 11 6v3l-11-2-1 6 4 3v2l-6-1-6 1v-2l4-3-1-6-11 2v-3l11-6z"/><path d="M6 51h22l-3 6H9z"/><rect x="10" y="44" width="13" height="7" rx="2"/><path d="M23 47h8"/><circle cx="12" cy="54" r="1.4" class="dot"/><circle cx="17" cy="54" r="1.4" class="dot"/><circle cx="22" cy="54" r="1.4" class="dot"/><path d="M42 42l10 10M52 42L42 52"/><circle cx="42" cy="42" r="3.2"/><circle cx="52" cy="42" r="3.2"/><circle cx="42" cy="52" r="3.2"/><circle cx="52" cy="52" r="3.2"/><rect x="45" y="45" width="4" height="4" rx="1" class="core"/><path d="M32 46v-9" stroke-width="3"/><circle cx="32" cy="35" r="3" class="core"/><path d="M27 48h10" /></g></svg>
+            <h3>SimNexus Pilot</h3>
+            <p lang="en">The pilot station: fly an aircraft or a drone, or drive a vehicle, with a gamepad or joystick; or crew it as gunner or sensor operator.</p>
+            <p lang="es">El puesto de pilotaje: volar un avión o un dron, o conducir un vehículo, con mando o joystick; o tripularlo como artillero u operador de sensores.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="10" y="9" width="44" height="13" rx="3"/><rect x="10" y="26" width="44" height="13" rx="3"/><rect x="10" y="43" width="44" height="13" rx="3"/><circle cx="17" cy="15.5" r="1.8" class="dot"/><circle cx="17" cy="32.5" r="1.8" class="dot"/><circle cx="17" cy="49.5" r="1.8" class="dot"/><path d="M38 15.5h10M38 32.5h10M38 49.5h10" opacity=".6"/><path d="M24 15.5h8M24 32.5h8M24 49.5h8" opacity=".35"/></g></svg>
+            <h3>SimNexus Backend</h3>
+            <p lang="en">The simulation engine: runs the mission, shares it across several computers and connects it to other simulators.</p>
+            <p lang="es">El motor de simulación: ejecuta la misión, la reparte entre varios equipos y la conecta con otros simuladores.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="12" cy="20" r="4"/><circle cx="12" cy="44" r="4"/><circle cx="32" cy="12" r="4"/><circle cx="32" cy="32" r="4"/><circle cx="32" cy="52" r="4"/><circle cx="52" cy="32" r="5" class="core"/><path d="M16 20l12-7M16 20l12 11M16 44l12-11M16 44l12 7M36 12l12 17M36 32h11M36 52l12-17" opacity=".75"/></g></svg>
+            <h3>SimNexus RL</h3>
+            <p lang="en">Pilots and adversaries trained by reinforcement learning, flying the scenario's aircraft.</p>
+            <p lang="es">Pilotos y adversarios entrenados con aprendizaje por refuerzo, que vuelan los aviones del escenario.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="10" width="50" height="34" rx="4"/><path d="M23 54h18M32 44v10"/><path d="M15 27c5-7 10-10 17-10s12 3 17 10c-5 7-10 10-17 10s-12-3-17-10z"/><circle cx="32" cy="27" r="5"/><circle cx="32" cy="27" r="1.8" class="dot"/></g></svg>
+            <h3>SimNexus Viewer</h3>
+            <p lang="en">A view-only station for observers: the live mission or its replay in 2D and 3D, on a desk or a large screen.</p>
+            <p lang="es">Un puesto solo para ver, para observadores: la misión en directo o su reproducción en 2D y 3D, en un equipo o en una pantalla grande.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="16" width="50" height="34" rx="5"/><circle cx="21" cy="33" r="7"/><circle cx="43" cy="33" r="7"/><circle cx="21" cy="33" r="2" opacity=".6"/><circle cx="43" cy="33" r="2" opacity=".6"/><path d="M21 40h22"/><circle cx="51" cy="10" r="4.5" class="rec"/></g></svg>
+            <h3>SimNexus Recorder</h3>
+            <p lang="en">Records the whole exercise, voice included, and replays it into the mission so every station sees it again.</p>
+            <p lang="es">Graba el ejercicio completo, voz incluida, y lo reproduce en la misión para que todos los puestos lo vuelvan a ver.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M10 54h44M12 8v46"/><path d="M14 44l11-14 9 7 12-18 8 6"/><circle cx="25" cy="30" r="2.4" class="dot"/><circle cx="34" cy="37" r="2.4" class="dot"/><circle cx="46" cy="19" r="2.4" class="dot"/><path d="M34 37v17" opacity=".35" stroke-dasharray="2 3"/></g></svg>
+            <h3>SimNexus Debrief</h3>
+            <p lang="en">The debriefing: the recorded mission with its timeline, voice and notes, to review what happened and why.</p>
+            <p lang="es">El debriefing: la misión grabada con su línea de tiempo, voz y anotaciones, para revisar qué pasó y por qué.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="wrap">
+        <h2><span lang="en">What it offers</span><span lang="es">Qué ofrece</span></h2>
         <div class="grid">
           <div class="card">
-            <h3>Escenarios aire, tierra y drones</h3>
-            <p>Misiones con aeronaves, vehículos y drones sobre terreno real, con sensores, armas y contramedidas.</p>
+            <h3><span lang="en">Air, land and drone scenarios</span><span lang="es">Escenarios aire, tierra y drones</span></h3>
+            <p lang="en">Missions with aircraft, vehicles and drones over real terrain, with sensors, weapons and countermeasures.</p>
+            <p lang="es">Misiones con aeronaves, vehículos y drones sobre terreno real, con sensores, armas y contramedidas.</p>
           </div>
           <div class="card">
-            <h3>Inteligencia artificial</h3>
-            <p>Entidades que persiguen, evaden y deciden por sí mismas, con pilotos entrenados mediante aprendizaje por refuerzo.</p>
+            <h3><span lang="en">Artificial intelligence</span><span lang="es">Inteligencia artificial</span></h3>
+            <p lang="en">Entities that pursue, evade and decide for themselves, with pilots trained by reinforcement learning.</p>
+            <p lang="es">Entidades que persiguen, evaden y deciden por sí mismas, con pilotos entrenados mediante aprendizaje por refuerzo.</p>
           </div>
           <div class="card">
-            <h3>Puestos de pilotaje</h3>
-            <p>Cualquier entidad se puede tomar y pilotar con mando o joystick, con su propio modelo de vuelo y sus instrumentos.</p>
+            <h3><span lang="en">Pilot stations</span><span lang="es">Puestos de pilotaje</span></h3>
+            <p lang="en">Any entity can be taken over and flown or driven with a gamepad or joystick, with its own flight model and instruments.</p>
+            <p lang="es">Cualquier entidad se puede tomar y pilotar con mando o joystick, con su propio modelo de vuelo y sus instrumentos.</p>
           </div>
           <div class="card">
-            <h3>Comunicaciones tácticas</h3>
-            <p>Radios de voz y enlaces de datos con alcance, interferencias y propagación, y un monitor que muestra cada mensaje.</p>
+            <h3><span lang="en">Tactical communications</span><span lang="es">Comunicaciones tácticas</span></h3>
+            <p lang="en">Voice radios and data links with range, interference and propagation, and a monitor that shows every message.</p>
+            <p lang="es">Radios de voz y enlaces de datos con alcance, interferencias y propagación, y un monitor que muestra cada mensaje.</p>
           </div>
           <div class="card">
-            <h3>Visión táctica</h3>
-            <p>Un visor 2D y 3D del escenario con todas las entidades, sus tareas y lo que detectan.</p>
+            <h3><span lang="en">Tactical view</span><span lang="es">Visión táctica</span></h3>
+            <p lang="en">A 2D and 3D view of the scenario with every entity, its tasks and what it detects.</p>
+            <p lang="es">Un visor 2D y 3D del escenario con todas las entidades, sus tareas y lo que detectan.</p>
           </div>
           <div class="card">
-            <h3>Ejercicio compartido</h3>
-            <p>Instructor, pilotos y operadores participan desde sus propios equipos en el mismo ejercicio, en tiempo real.</p>
+            <h3><span lang="en">Shared exercise</span><span lang="es">Ejercicio compartido</span></h3>
+            <p lang="en">Instructor, pilots and operators take part in the same exercise from their own computers, in real time.</p>
+            <p lang="es">Instructor, pilotos y operadores participan desde sus propios equipos en el mismo ejercicio, en tiempo real.</p>
           </div>
         </div>
       </div>
     </section>
 
+
     <section>
       <div class="wrap">
-        <h2 id="videos">Vídeos</h2>
+        <h2 id="videos"><span lang="en">Videos</span><span lang="es">Vídeos</span></h2>
         <div class="videos">
           <figure>
-            <figcaption>Presentación de la aplicación</figcaption>
+            <figcaption><span lang="en">The application at a glance</span><span lang="es">Presentación de la aplicación</span></figcaption>
             <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
           </figure>
           <figure>
-            <figcaption>Demo de funcionalidad: planificar, pilotar y operar</figcaption>
+            <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo de funcionalidad: planificar, pilotar y operar</span></figcaption>
             <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
           </figure>
         </div>
@@ -140,21 +225,22 @@
 
     <section>
       <div class="wrap">
-        <h2>Para qué sirve</h2>
+        <h2><span lang="en">What it is for</span><span lang="es">Para qué sirve</span></h2>
         <ul class="uses">
-          <li>Entrenamiento</li>
-          <li>Análisis de misiones</li>
-          <li>Pruebas de tácticas y procedimientos</li>
-          <li>Desarrollo y prueba de IA</li>
-          <li>Demostraciones</li>
+          <li><span lang="en">Training</span><span lang="es">Entrenamiento</span></li>
+          <li><span lang="en">Mission analysis</span><span lang="es">Análisis de misiones</span></li>
+          <li><span lang="en">Testing tactics and procedures</span><span lang="es">Pruebas de tácticas y procedimientos</span></li>
+          <li><span lang="en">AI development and testing</span><span lang="es">Desarrollo y prueba de IA</span></li>
+          <li><span lang="en">Demonstrations</span><span lang="es">Demostraciones</span></li>
         </ul>
       </div>
     </section>
 
     <section class="contact">
       <div class="wrap">
-        <h2>Contacto</h2>
-        <p>Escríbenos a través de nuestra <a href="https://www.linkedin.com/company/simnexus/">página de LinkedIn</a>.</p>
+        <h2><span lang="en">Contact</span><span lang="es">Contacto</span></h2>
+        <p lang="en">Write to us through our <a href="https://www.linkedin.com/company/simnexus/">LinkedIn page</a>.</p>
+        <p lang="es">Escríbenos a través de nuestra <a href="https://www.linkedin.com/company/simnexus/">página de LinkedIn</a>.</p>
       </div>
     </section>
   </main>
@@ -162,5 +248,27 @@
   <footer>
     <div class="wrap"><img src="img/emblema.png" alt="">SimNexus · <a href="https://www.linkedin.com/company/simnexus/">LinkedIn</a></div>
   </footer>
+
+  <script>
+    // English by default; the choice is remembered in this browser when it can be.
+    (function () {
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-set-lang]");
+      function apply(lang) {
+        root.dataset.lang = lang;
+        root.lang = lang;
+        buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)); });
+      }
+      let saved = null;
+      try { saved = localStorage.getItem("simnexus-lang"); } catch (e) {}
+      apply(saved === "es" ? "es" : "en");
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          apply(b.dataset.setLang);
+          try { localStorage.setItem("simnexus-lang", b.dataset.setLang); } catch (e) {}
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
