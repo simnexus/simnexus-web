@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimNexus</title>
+<meta name="description" content="AI-driven tactical simulation to train, analyse and test air, land and drone operations.">
+<meta property="og:title" content="SimNexus">
+<meta property="og:description" content="AI-driven tactical simulation to train, analyse and test air, land and drone operations.">
+<meta property="og:image" content="img/hero.png">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06080c;
+    --surface: #0d1117;
+    --raised: #141a22;
+    --border: #232b36;
+    --text: #f2f5f8;
+    --muted: #9aa6b4;
+    --accent: #8fd3ff;
+    --warm: #ffb547;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  /* One language at a time: the other's texts are hidden. */
+  html[data-lang="en"] [lang="es"], html[data-lang="es"] [lang="en"] { display: none !important; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  header.hero { background: #09141d; border-bottom: 1px solid var(--border); position: relative; }
+  header.hero img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; filter: brightness(0.82); }
+  .lang-switch {
+    position: absolute; top: 12px; right: 16px;
+    display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+    background: rgba(11, 18, 26, 0.85);
+  }
+  .lang-switch button {
+    background: transparent; color: var(--muted); border: 0; padding: 4px 12px;
+    font: 600 0.85rem system-ui, sans-serif; cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] { background: var(--accent); color: #06131c; }
+  .tagline { text-align: center; padding-top: 36px; padding-bottom: 44px; }
+  .tagline h1 { margin: 0 0 12px; font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 650; line-height: 1.25; }
+  .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
+  .to-videos {
+    display: inline-block; margin-top: 22px; padding: 8px 18px;
+    border: 1px solid var(--accent); border-radius: 999px; color: var(--accent);
+    text-decoration: none; font-size: 0.95rem;
+  }
+  .to-videos:hover { background: rgba(143, 211, 255, 0.12); }
+  section { padding: 48px 0; border-top: 1px solid var(--border); }
+  h2 { margin: 0 0 24px; font-size: 1.5rem; }
+  /* Cards of one width, centred: a short last row sits in the middle. */
+  .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .grid .card { flex: 0 1 246px; }
+  @media (max-width: 560px) { .grid .card { flex-basis: 100%; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .card h3 { margin: 0 0 8px; font-size: 1.08rem; color: var(--accent); }
+  .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+  .suite-intro { margin: -8px 0 24px; color: var(--muted); }
+  .app-icon { width: 60px; height: 60px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(143, 211, 255, 0.18)); }
+  .app-icon .tile { fill: url(#sn-tile); stroke: rgba(143, 211, 255, 0.35); stroke-width: 1; }
+  .app-icon .glyph { fill: none; stroke: url(#sn-stroke); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .app-icon .dot { fill: #8fd3ff; stroke: none; }
+  .app-icon .core { fill: rgba(255, 181, 71, 0.25); stroke: #ffb547; }
+  .app-icon .rec { fill: #ff5a5a; stroke: none; filter: drop-shadow(0 0 4px #ff5a5a); }
+  .app-icon .flame { stroke: #ffb547; }
+  .app:hover .app-icon { filter: drop-shadow(0 0 14px rgba(143, 211, 255, 0.35)); }
+  .uses { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
+  .uses li { background: var(--raised); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 0.95rem; }
+  .videos { display: grid; gap: 32px; max-width: 620px; margin: 0 auto; }
+  .videos figure { margin: 0; }
+  .videos video { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); background: #000; display: block; }
+  .videos figcaption { margin-bottom: 10px; color: var(--text); font-size: 1.05rem; font-weight: 600; }
+  .contact { text-align: center; }
+  .contact p { color: var(--muted); }
+  a { color: var(--accent); }
+  footer { padding: 24px 0 40px; text-align: center; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+  footer img { width: 40px; height: 40px; border-radius: 8px; vertical-align: middle; margin-right: 8px; }
+
+  /* ── Futuristic layer: a live tactical background, HUD frames, glass cards that follow the pointer ── */
+  body { background: radial-gradient(1200px 700px at 50% -10%, #0f1a26 0%, #0b121a 55%, #070c12 100%) fixed; }
+  #battlespace { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+  h1, h2, h3, .lang-switch button, .to-videos { font-family: "Rajdhani", system-ui, sans-serif; letter-spacing: 0.02em; }
+  header.hero { background: transparent; border-bottom: 1px solid rgba(143, 211, 255, 0.18); }
+  header.hero img {
+    animation: breathe 6s ease-in-out infinite;
+    /* the picture's own dark box melts into the live background */
+    -webkit-mask-image: radial-gradient(ellipse 72% 78% at 50% 50%, #000 58%, transparent 100%);
+    mask-image: radial-gradient(ellipse 72% 78% at 50% 50%, #000 58%, transparent 100%);
+  }
+  @keyframes breathe {
+    0%, 100% { filter: brightness(0.8) drop-shadow(0 0 0 rgba(143, 211, 255, 0)); }
+    50% { filter: brightness(0.95) drop-shadow(0 0 24px rgba(143, 211, 255, 0.35)); }
+  }
+  .tagline { position: relative; max-width: 860px; margin: 28px auto 0; padding: 30px 28px 36px; }
+  .tagline::before, .tagline::after {
+    content: ""; position: absolute; width: 34px; height: 34px; border: 2px solid var(--accent); opacity: 0.8;
+  }
+  .tagline::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+  .tagline::after { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+  .tagline h1 {
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem); font-weight: 700; text-transform: uppercase;
+    background: linear-gradient(90deg, #e5edf4 0%, #8fd3ff 45%, #ffb547 100%); -webkit-background-clip: text; background-clip: text;
+    color: transparent; text-shadow: 0 0 30px rgba(143, 211, 255, 0.15);
+  }
+  .tagline .scan {
+    position: absolute; left: 0; right: 0; height: 2px; top: 0; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(143, 211, 255, 0.8), transparent);
+    animation: scan 4.5s linear infinite;
+  }
+  @keyframes scan { from { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { top: 100%; opacity: 0; } }
+  .hud-line { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: rgba(143, 211, 255, 0.7); letter-spacing: 0.12em; margin-bottom: 10px; }
+  .hud-line .live { color: #32e08a; }
+  .hud-line .live::before { content: "●"; margin-right: 6px; animation: blink 1.6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0.2; } }
+  .to-videos { font-weight: 700; text-transform: uppercase; box-shadow: 0 0 0 0 rgba(143, 211, 255, 0.5); animation: ping 3s ease-out infinite; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(143, 211, 255, 0.45); } 70%, 100% { box-shadow: 0 0 0 14px rgba(143, 211, 255, 0); } }
+  section { border-top: 1px solid rgba(143, 211, 255, 0.12); counter-increment: hud; }
+  main { counter-reset: hud; }
+  h2 { font-weight: 700; text-transform: uppercase; font-size: 1.7rem; }
+  h2::before { content: "// 0" counter(hud) "  "; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--warm); vertical-align: middle; }
+  .card {
+    position: relative; overflow: hidden; background: rgba(16, 25, 35, 0.62); backdrop-filter: blur(6px);
+    border: 1px solid rgba(143, 211, 255, 0.16); transition: transform 0.15s ease-out, border-color 0.2s, box-shadow 0.2s;
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(143, 211, 255, 0.16), transparent 60%);
+  }
+  .card:hover { border-color: rgba(143, 211, 255, 0.55); box-shadow: 0 0 0 1px rgba(255, 181, 71, 0.15), 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 30px rgba(143, 211, 255, 0.12); }
+  .card:hover::before { opacity: 1; }
+  .uses li { background: rgba(23, 34, 50, 0.7); border-color: rgba(143, 211, 255, 0.2); transition: border-color 0.2s, color 0.2s; }
+  .uses li:hover { border-color: var(--warm); color: #fff; }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+
+  /* ── v3: pro ── */
+  body { background: #06080c; font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #battlespace { opacity: 0.35; }
+  .topbar { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(140%); background: rgba(6, 8, 12, 0.62);
+            border-bottom: 1px solid rgba(143, 211, 255, 0.10); }
+  .topbar-in { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font: 700 1.05rem "Rajdhani", sans-serif; letter-spacing: 0.28em; }
+  .brand img { width: 30px; height: 30px; border-radius: 7px; }
+  .navlinks { display: flex; gap: 22px; margin-left: auto; }
+  .navlinks a { color: var(--muted); text-decoration: none; font: 500 0.9rem "JetBrains Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+  .navlinks a:hover { color: var(--text); }
+  @media (max-width: 720px) { .navlinks { display: none; } }
+  .lang-switch { position: static; }
+  header.hero { position: relative; min-height: 92vh; display: flex; align-items: center; overflow: hidden; border-bottom: 1px solid rgba(143, 211, 255, 0.08);
+                background: radial-gradient(900px 600px at 75% 45%, rgba(143, 211, 255, 0.10), transparent 70%); }
+  #globe { position: absolute; right: -6vw; top: 50%; transform: translateY(-50%); width: min(62vw, 820px); height: min(62vw, 820px); pointer-events: none; }
+  @media (max-width: 860px) { #globe { right: 50%; transform: translate(50%, -50%); opacity: 0.45; } }
+  .tagline { text-align: left; max-width: 1180px; width: 100%; margin: 0 auto; padding: 80px 16px; position: relative; z-index: 1; }
+  .tagline::before, .tagline::after, .tagline .scan, .hud-line { display: none; }
+  .micro { display: inline-flex; align-items: center; gap: 10px; font: 500 0.78rem "JetBrains Mono", monospace; letter-spacing: 0.18em; text-transform: uppercase;
+           color: var(--accent); border: 1px solid rgba(143, 211, 255, 0.25); border-radius: 999px; padding: 5px 14px; background: rgba(143, 211, 255, 0.05); }
+  .micro .pulse { width: 7px; height: 7px; border-radius: 50%; background: #35e08f; box-shadow: 0 0 0 0 rgba(53, 224, 143, 0.6); animation: live 2s infinite; }
+  @keyframes live { to { box-shadow: 0 0 0 10px rgba(53, 224, 143, 0); } }
+  .tagline h1 { margin: 22px 0 18px; font: 700 clamp(2.4rem, 6.2vw, 5rem)/1.02 "Rajdhani", sans-serif; letter-spacing: -0.005em; text-transform: none;
+                color: var(--text); background: none; -webkit-background-clip: border-box; background-clip: border-box; text-shadow: none; max-width: 760px; }
+  .tagline h1 em { font-style: normal; background: linear-gradient(90deg, #8fd3ff, #ffb547); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tagline p { margin: 0; max-width: 560px; font-size: 1.12rem; color: var(--muted); }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 8px; text-decoration: none; font: 700 0.95rem "Rajdhani", sans-serif;
+         letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); border: 1px solid rgba(242, 245, 248, 0.22); transition: all 0.2s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: linear-gradient(135deg, #8fd3ff, #5aa9e6); color: #04121d; border-color: transparent; box-shadow: 0 8px 30px rgba(143, 211, 255, 0.25); }
+  .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(143, 211, 255, 0.35); color: #04121d; }
+  .to-videos { display: none; }
+  .stats { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 54px; padding-top: 22px; border-top: 1px solid rgba(143, 211, 255, 0.12); max-width: 640px; }
+  .stats div { display: flex; flex-direction: column; }
+  .stats b { font: 700 2.6rem/1 "Rajdhani", sans-serif; color: var(--text); }
+  .stats span { font: 500 0.75rem "JetBrains Mono", monospace; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px; }
+  section { padding: 80px 0; border-top: 1px solid rgba(143, 211, 255, 0.07); }
+  h2 { font: 700 2.2rem "Rajdhani", sans-serif; text-transform: none; letter-spacing: 0; margin-bottom: 30px; }
+  h2::before { content: "0" counter(hud) " —"; display: block; font: 500 0.78rem "JetBrains Mono", monospace; color: var(--warm); letter-spacing: 0.2em; margin-bottom: 8px; }
+  .card { background: linear-gradient(180deg, rgba(20, 26, 34, 0.85), rgba(13, 17, 23, 0.85)); border: 1px solid var(--border); border-radius: 14px; padding: 24px;
+          transform: none; transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s; }
+  .card:hover { transform: translateY(-4px); border-color: rgba(143, 211, 255, 0.45);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(143, 211, 255, 0.08); }
+  .card h3 { font: 700 1.25rem "Rajdhani", sans-serif; color: var(--text); letter-spacing: 0.02em; }
+  .app:hover h3 { color: var(--accent); }
+  .uses li { border-radius: 8px; font-family: "JetBrains Mono", monospace; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  footer { border-top: 1px solid rgba(143, 211, 255, 0.08); }
+</style>
+</head>
+<body>
+  <canvas id="battlespace" aria-hidden="true"></canvas>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="sn-stroke" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#bfe6ff"/><stop offset=".55" stop-color="#8fd3ff"/><stop offset="1" stop-color="#ffb547"/>
+      </linearGradient>
+      <radialGradient id="sn-tile" cx=".3" cy=".25" r=".9">
+        <stop offset="0" stop-color="#18222e"/><stop offset="1" stop-color="#0a0e14"/>
+      </radialGradient>
+    </defs>
+  </svg>
+  <nav class="topbar">
+    <div class="topbar-in">
+      <a class="brand" href="#top"><img src="img/emblema.png" alt=""><span>SIMNEXUS</span></a>
+      <div class="navlinks">
+        <a href="#suite"><span lang="en">Suite</span><span lang="es">Suite</span></a>
+        <a href="#capabilities"><span lang="en">Capabilities</span><span lang="es">Capacidades</span></a>
+        <a href="#videos"><span lang="en">Videos</span><span lang="es">Vídeos</span></a>
+        <a href="#contact"><span lang="en">Contact</span><span lang="es">Contacto</span></a>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+    </div>
+  </nav>
+  <header class="hero" id="top">
+    <canvas id="globe" aria-hidden="true"></canvas>
+
+    <div class="wrap tagline">
+      <div class="micro"><span class="pulse"></span><span lang="en">Tactical simulation suite · AI-native</span><span lang="es">Suite de simulación táctica · con IA</span></div>
+      <h1 lang="en">Every domain.<br>One battlespace.<br><em>Real decisions.</em></h1>
+      <h1 lang="es">Todos los dominios.<br>Un campo de batalla.<br><em>Decisiones reales.</em></h1>
+      <p lang="en">Aircraft, vehicles and drones over real terrain, flown by your crews or by AI pilots that learn to win.</p>
+      <p lang="es">Aviones, vehículos y drones sobre terreno real, pilotados por tus tripulaciones o por pilotos de IA que aprenden a ganar.</p>
+      <div class="cta">
+        <a class="btn primary" href="#suite"><span lang="en">Explore the suite</span><span lang="es">Descubre la suite</span></a>
+        <a class="btn" href="#videos"><span lang="en">▶ Watch the videos</span><span lang="es">▶ Ver vídeos</span></a>
+      </div>
+      <div class="stats">
+        <div><b data-count="8">0</b><span lang="en">applications</span><span lang="es">aplicaciones</span></div>
+        <div><b data-count="3">0</b><span lang="en">domains: air, land, drones</span><span lang="es">dominios: aire, tierra, drones</span></div>
+        <div><b data-count="1">0</b><span lang="en">shared battlespace</span><span lang="es">campo de batalla compartido</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="suite">
+      <div class="wrap">
+        <h2><span lang="en">The suite</span><span lang="es">La suite</span></h2>
+        <p class="suite-intro" lang="en">Eight applications that work together: each station runs the one its role needs.</p>
+        <p class="suite-intro" lang="es">Ocho aplicaciones que trabajan juntas: cada puesto usa la que necesita su papel.</p>
+        <div class="grid">
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 9c9 6 13 17 10 30l-10 7-10-7C19 26 23 15 32 9z"/><circle cx="32" cy="24" r="4.5"/><path d="M22 37l-8 6 2 10 9-6M42 37l8 6-2 10-9-6"/><path d="M27 48l5 9 5-9" class="flame"/><path d="M32 30v8" opacity=".5"/></g></svg>
+            <h3>SimNexus Launcher</h3>
+            <p lang="en">Starts and organises the stations of an exercise on each computer.</p>
+            <p lang="es">Arranca y organiza los puestos de un ejercicio en cada equipo.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="13" opacity=".7"/><circle cx="32" cy="32" r="5" opacity=".5"/><path d="M32 7v9M32 48v9M7 32h9M48 32h9"/><path d="M32 32L46 20" stroke-width="3"/><circle cx="41" cy="40" r="2.2" class="dot"/><circle cx="22" cy="23" r="1.8" class="dot"/></g></svg>
+            <h3>SimNexus Tactical</h3>
+            <p lang="en">The 2D and 3D tactical view: plan the mission, task the entities, follow the scenario and its communications.</p>
+            <p lang="es">El visor táctico 2D y 3D: planificar la misión, asignar tareas, seguir el escenario y sus comunicaciones.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 5l3 9 11 6v3l-11-2-1 6 4 3v2l-6-1-6 1v-2l4-3-1-6-11 2v-3l11-6z"/><path d="M6 51h22l-3 6H9z"/><rect x="10" y="44" width="13" height="7" rx="2"/><path d="M23 47h8"/><circle cx="12" cy="54" r="1.4" class="dot"/><circle cx="17" cy="54" r="1.4" class="dot"/><circle cx="22" cy="54" r="1.4" class="dot"/><path d="M42 42l10 10M52 42L42 52"/><circle cx="42" cy="42" r="3.2"/><circle cx="52" cy="42" r="3.2"/><circle cx="42" cy="52" r="3.2"/><circle cx="52" cy="52" r="3.2"/><rect x="45" y="45" width="4" height="4" rx="1" class="core"/><path d="M32 46v-9" stroke-width="3"/><circle cx="32" cy="35" r="3" class="core"/><path d="M27 48h10" /></g></svg>
+            <h3>SimNexus Pilot</h3>
+            <p lang="en">The pilot station: fly an aircraft or a drone, or drive a vehicle, with a gamepad or joystick; or crew it as gunner or sensor operator.</p>
+            <p lang="es">El puesto de pilotaje: volar un avión o un dron, o conducir un vehículo, con mando o joystick; o tripularlo como artillero u operador de sensores.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="10" y="9" width="44" height="13" rx="3"/><rect x="10" y="26" width="44" height="13" rx="3"/><rect x="10" y="43" width="44" height="13" rx="3"/><circle cx="17" cy="15.5" r="1.8" class="dot"/><circle cx="17" cy="32.5" r="1.8" class="dot"/><circle cx="17" cy="49.5" r="1.8" class="dot"/><path d="M38 15.5h10M38 32.5h10M38 49.5h10" opacity=".6"/><path d="M24 15.5h8M24 32.5h8M24 49.5h8" opacity=".35"/></g></svg>
+            <h3>SimNexus Backend</h3>
+            <p lang="en">The simulation engine: runs the mission, shares it across several computers and connects it to other simulators.</p>
+            <p lang="es">El motor de simulación: ejecuta la misión, la reparte entre varios equipos y la conecta con otros simuladores.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="12" cy="20" r="4"/><circle cx="12" cy="44" r="4"/><circle cx="32" cy="12" r="4"/><circle cx="32" cy="32" r="4"/><circle cx="32" cy="52" r="4"/><circle cx="52" cy="32" r="5" class="core"/><path d="M16 20l12-7M16 20l12 11M16 44l12-11M16 44l12 7M36 12l12 17M36 32h11M36 52l12-17" opacity=".75"/></g></svg>
+            <h3>SimNexus RL</h3>
+            <p lang="en">Pilots and adversaries trained by reinforcement learning, flying the scenario's aircraft.</p>
+            <p lang="es">Pilotos y adversarios entrenados con aprendizaje por refuerzo, que vuelan los aviones del escenario.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="10" width="50" height="34" rx="4"/><path d="M23 54h18M32 44v10"/><path d="M15 27c5-7 10-10 17-10s12 3 17 10c-5 7-10 10-17 10s-12-3-17-10z"/><circle cx="32" cy="27" r="5"/><circle cx="32" cy="27" r="1.8" class="dot"/></g></svg>
+            <h3>SimNexus Viewer</h3>
+            <p lang="en">A view-only station for observers: the live mission or its replay in 2D and 3D, on a desk or a large screen.</p>
+            <p lang="es">Un puesto solo para ver, para observadores: la misión en directo o su reproducción en 2D y 3D, en un equipo o en una pantalla grande.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="16" width="50" height="34" rx="5"/><circle cx="21" cy="33" r="7"/><circle cx="43" cy="33" r="7"/><circle cx="21" cy="33" r="2" opacity=".6"/><circle cx="43" cy="33" r="2" opacity=".6"/><path d="M21 40h22"/><circle cx="51" cy="10" r="4.5" class="rec"/></g></svg>
+            <h3>SimNexus Recorder</h3>
+            <p lang="en">Records the whole exercise, voice included, and replays it into the mission so every station sees it again.</p>
+            <p lang="es">Graba el ejercicio completo, voz incluida, y lo reproduce en la misión para que todos los puestos lo vuelvan a ver.</p>
+          </div>
+          <div class="card app">
+            <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M10 54h44M12 8v46"/><path d="M14 44l11-14 9 7 12-18 8 6"/><circle cx="25" cy="30" r="2.4" class="dot"/><circle cx="34" cy="37" r="2.4" class="dot"/><circle cx="46" cy="19" r="2.4" class="dot"/><path d="M34 37v17" opacity=".35" stroke-dasharray="2 3"/></g></svg>
+            <h3>SimNexus Debrief</h3>
+            <p lang="en">The debriefing: the recorded mission with its timeline, voice and notes, to review what happened and why.</p>
+            <p lang="es">El debriefing: la misión grabada con su línea de tiempo, voz y anotaciones, para revisar qué pasó y por qué.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="capabilities">
+      <div class="wrap">
+        <h2><span lang="en">What it offers</span><span lang="es">Qué ofrece</span></h2>
+        <div class="grid">
+          <div class="card">
+            <h3><span lang="en">Air, land and drone scenarios</span><span lang="es">Escenarios aire, tierra y drones</span></h3>
+            <p lang="en">Missions with aircraft, vehicles and drones over real terrain, with sensors, weapons and countermeasures.</p>
+            <p lang="es">Misiones con aeronaves, vehículos y drones sobre terreno real, con sensores, armas y contramedidas.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Artificial intelligence</span><span lang="es">Inteligencia artificial</span></h3>
+            <p lang="en">Entities that pursue, evade and decide for themselves, with pilots trained by reinforcement learning.</p>
+            <p lang="es">Entidades que persiguen, evaden y deciden por sí mismas, con pilotos entrenados mediante aprendizaje por refuerzo.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Pilot stations</span><span lang="es">Puestos de pilotaje</span></h3>
+            <p lang="en">Any entity can be taken over and flown or driven with a gamepad or joystick, with its own flight model and instruments.</p>
+            <p lang="es">Cualquier entidad se puede tomar y pilotar con mando o joystick, con su propio modelo de vuelo y sus instrumentos.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Tactical communications</span><span lang="es">Comunicaciones tácticas</span></h3>
+            <p lang="en">Voice radios and data links with range, interference and propagation, and a monitor that shows every message.</p>
+            <p lang="es">Radios de voz y enlaces de datos con alcance, interferencias y propagación, y un monitor que muestra cada mensaje.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Tactical view</span><span lang="es">Visión táctica</span></h3>
+            <p lang="en">A 2D and 3D view of the scenario with every entity, its tasks and what it detects.</p>
+            <p lang="es">Un visor 2D y 3D del escenario con todas las entidades, sus tareas y lo que detectan.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Shared exercise</span><span lang="es">Ejercicio compartido</span></h3>
+            <p lang="en">Instructor, pilots and operators take part in the same exercise from their own computers, in real time.</p>
+            <p lang="es">Instructor, pilotos y operadores participan desde sus propios equipos en el mismo ejercicio, en tiempo real.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div class="wrap">
+        <h2 id="videos"><span lang="en">Videos</span><span lang="es">Vídeos</span></h2>
+        <div class="videos">
+          <figure>
+            <figcaption><span lang="en">The application at a glance</span><span lang="es">Presentación de la aplicación</span></figcaption>
+            <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
+          </figure>
+          <figure>
+            <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo de funcionalidad: planificar, pilotar y operar</span></figcaption>
+            <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2><span lang="en">What it is for</span><span lang="es">Para qué sirve</span></h2>
+        <ul class="uses">
+          <li><span lang="en">Training</span><span lang="es">Entrenamiento</span></li>
+          <li><span lang="en">Mission analysis</span><span lang="es">Análisis de misiones</span></li>
+          <li><span lang="en">Testing tactics and procedures</span><span lang="es">Pruebas de tácticas y procedimientos</span></li>
+          <li><span lang="en">AI development and testing</span><span lang="es">Desarrollo y prueba de IA</span></li>
+          <li><span lang="en">Demonstrations</span><span lang="es">Demostraciones</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="wrap">
+        <h2><span lang="en">Contact</span><span lang="es">Contacto</span></h2>
+        <p lang="en">Write to us through our <a href="https://www.linkedin.com/company/simnexus/">LinkedIn page</a>.</p>
+        <p lang="es">Escríbenos a través de nuestra <a href="https://www.linkedin.com/company/simnexus/">página de LinkedIn</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap"><img src="img/emblema.png" alt="">SimNexus · <a href="https://www.linkedin.com/company/simnexus/">LinkedIn</a></div>
+  </footer>
+
+  <script>
+    // English by default; the choice is remembered in this browser when it can be.
+    (function () {
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-set-lang]");
+      function apply(lang) {
+        root.dataset.lang = lang;
+        root.lang = lang;
+        buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)); });
+      }
+      let saved = null;
+      try { saved = localStorage.getItem("simnexus-lang"); } catch (e) {}
+      apply(saved === "es" ? "es" : "en");
+      buttons.forEach(function (b) {
+        b.addEventListener("click", function () {
+          apply(b.dataset.setLang);
+          try { localStorage.setItem("simnexus-lang", b.dataset.setLang); } catch (e) {}
+        });
+      });
+    })();
+  </script>
+
+  <script>
+    // The tactical background: a grid, a radar sweep and tracks crossing it, faint behind the text.
+    (function () {
+      const canvas = document.getElementById("battlespace");
+      const ctx = canvas.getContext("2d");
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let w = 0, h = 0, dpr = 1;
+      const tracks = [];
+      const labels = ["VPR 11", "VPR 12", "MAGIC 01", "UAV 03", "LEO B", "FLK 21", "HAWK 4", "UNK 07", "UAV 09", "TOC 1"];
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.clientWidth; h = canvas.clientHeight;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      function spawn(i) {
+        const hostile = i % 4 === 3;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.12 + Math.random() * 0.35;
+        return { x: Math.random() * w, y: Math.random() * h, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                 hostile: hostile, label: labels[i % labels.length], trail: [], lit: 0 };
+      }
+      resize();
+      for (let i = 0; i < 14; i++) tracks.push(spawn(i));
+      window.addEventListener("resize", resize);
+      let sweep = 0, last = performance.now();
+      function frame(now) {
+        const dt = Math.min(50, now - last); last = now;
+        ctx.clearRect(0, 0, w, h);
+        // grid
+        ctx.strokeStyle = "rgba(143, 211, 255, 0.045)"; ctx.lineWidth = 1;
+        for (let x = (now * 0.004) % 64; x < w; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = 0; y < h; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+        // radar: rings and the sweep, centred on the page
+        const cx = w * 0.5, cy = h * 0.42, r = Math.max(w, h) * 0.55;
+        ctx.strokeStyle = "rgba(143, 211, 255, 0.06)";
+        for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(cx, cy, r * k / 4, 0, Math.PI * 2); ctx.stroke(); }
+        sweep = (sweep + dt * 0.0006) % (Math.PI * 2);
+        const grad = ctx.createConicGradient ? ctx.createConicGradient(sweep - 0.6, cx, cy) : null;
+        if (grad) {
+          grad.addColorStop(0, "rgba(143, 211, 255, 0)"); grad.addColorStop(0.09, "rgba(143, 211, 255, 0.10)");
+          grad.addColorStop(0.0955, "rgba(143, 211, 255, 0)"); grad.addColorStop(1, "rgba(143, 211, 255, 0)");
+          ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+        }
+        // tracks with their trails; the sweep lights them up as it passes
+        ctx.font = "10px JetBrains Mono, monospace";
+        for (const t of tracks) {
+          t.x += t.vx * dt * 0.06; t.y += t.vy * dt * 0.06;
+          if (t.x < -40) t.x = w + 40; if (t.x > w + 40) t.x = -40; if (t.y < -40) t.y = h + 40; if (t.y > h + 40) t.y = -40;
+          t.trail.push([t.x, t.y]); if (t.trail.length > 40) t.trail.shift();
+          const a = Math.atan2(t.y - cy, t.x - cx); const diff = ((sweep - a) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+          if (diff < 0.08) t.lit = 1; t.lit = Math.max(0.25, t.lit - dt * 0.0006);
+          const col = t.hostile ? "255, 181, 71" : "143, 211, 255";
+          ctx.strokeStyle = "rgba(" + col + "," + (0.18 * t.lit) + ")"; ctx.beginPath();
+          t.trail.forEach(function (p, i) { if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }); ctx.stroke();
+          ctx.fillStyle = "rgba(" + col + "," + (0.75 * t.lit) + ")";
+          ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(Math.PI / 4);
+          if (t.hostile) ctx.fillRect(-3.5, -3.5, 7, 7); else { ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, Math.PI * 2); ctx.fill(); }
+          ctx.restore();
+          ctx.fillStyle = "rgba(" + col + "," + (0.45 * t.lit) + ")"; ctx.fillText(t.label, t.x + 8, t.y - 6);
+        }
+        if (!still && !document.hidden) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      document.addEventListener("visibilitychange", function () { if (!document.hidden && !still) { last = performance.now(); requestAnimationFrame(frame); } });
+    })();
+
+    // Cards: a light that follows the pointer and a slight tilt.
+    document.querySelectorAll(".card").forEach(function (card) {
+      card.addEventListener("pointermove", function (e) {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        card.style.setProperty("--mx", (x * 100) + "%"); card.style.setProperty("--my", (y * 100) + "%");
+        card.style.setProperty("--ry", ((x - 0.5) * 8) + "deg"); card.style.setProperty("--rx", ((0.5 - y) * 8) + "deg");
+      });
+      card.addEventListener("pointerleave", function () { card.style.setProperty("--rx", "0deg"); card.style.setProperty("--ry", "0deg"); });
+    });
+
+    // Sections and cards fade in as they come into view.
+    (function () {
+      const items = document.querySelectorAll("section .wrap > h2, section .card, .uses li, .videos figure");
+      items.forEach(function (el) { el.classList.add("reveal"); });
+      if (!("IntersectionObserver" in window)) { items.forEach(function (el) { el.classList.add("in"); }); return; }
+      const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+      }, { threshold: 0.12 });
+      items.forEach(function (el, i) { el.style.transitionDelay = (i % 4) * 70 + "ms"; io.observe(el); });
+    })();
+  </script>
+
+  <script>
+    // The globe: a wireframe Earth turning slowly, with links arcing between points and pulses running along them.
+    (function () {
+      const c = document.getElementById("globe"); if (!c) return;
+      const g = c.getContext("2d");
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let size = 0, dpr = 1;
+      function resize() { dpr = Math.min(window.devicePixelRatio || 1, 2); size = c.clientWidth; c.width = size * dpr; c.height = size * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      resize(); window.addEventListener("resize", resize);
+      const rad = Math.PI / 180;
+      const sites = [[40.4,-3.7],[48.9,2.3],[52.5,13.4],[51.5,-0.1],[38.9,-77.0],[25.3,55.3],[1.35,103.8],[35.7,139.7],[-33.9,151.2],[59.3,18.1],[41.0,28.9],[19.4,-99.1],[-23.5,-46.6],[64.1,-21.9]];
+      const links = [[0,1],[0,3],[1,2],[2,9],[3,4],[0,10],[10,5],[5,6],[6,7],[7,8],[4,11],[11,12],[3,13],[0,4]];
+      let spin = -20, last = performance.now();
+      function project(lat, lon, R, cx, cy) {
+        const la = lat * rad, lo = (lon + spin) * rad, tilt = 18 * rad;
+        let x = Math.cos(la) * Math.sin(lo), y = Math.sin(la), z = Math.cos(la) * Math.cos(lo);
+        const y2 = y * Math.cos(tilt) - z * Math.sin(tilt), z2 = y * Math.sin(tilt) + z * Math.cos(tilt);
+        return { x: cx + R * x, y: cy - R * y2, z: z2 };
+      }
+      function slerp(a, b, t) {
+        const toV = function (p) { const la = p[0] * rad, lo = p[1] * rad; return [Math.cos(la) * Math.cos(lo), Math.cos(la) * Math.sin(lo), Math.sin(la)]; };
+        const A = toV(a), B = toV(b); const d = Math.acos(Math.min(1, A[0]*B[0]+A[1]*B[1]+A[2]*B[2])) || 1e-6;
+        const s1 = Math.sin((1 - t) * d) / Math.sin(d), s2 = Math.sin(t * d) / Math.sin(d);
+        const v = [A[0]*s1+B[0]*s2, A[1]*s1+B[1]*s2, A[2]*s1+B[2]*s2];
+        return [Math.asin(v[2]) / rad, Math.atan2(v[1], v[0]) / rad];
+      }
+      function frame(now) {
+        const dt = Math.min(50, now - last); last = now; spin += dt * 0.006;
+        const cx = size / 2, cy = size / 2, R = size * 0.42;
+        g.clearRect(0, 0, size, size);
+        const halo = g.createRadialGradient(cx, cy, R * 0.8, cx, cy, R * 1.25);
+        halo.addColorStop(0, "rgba(143, 211, 255, 0.10)"); halo.addColorStop(1, "rgba(143, 211, 255, 0)");
+        g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, R * 1.25, 0, Math.PI * 2); g.fill();
+        g.lineWidth = 1;
+        for (let lat = -75; lat <= 75; lat += 15) {
+          g.beginPath(); let first = true;
+          for (let lon = -180; lon <= 180; lon += 4) { const p = project(lat, lon, R, cx, cy); if (p.z < 0) { first = true; continue; } first ? g.moveTo(p.x, p.y) : g.lineTo(p.x, p.y); first = false; }
+          g.strokeStyle = "rgba(143, 211, 255, 0.13)"; g.stroke();
+        }
+        for (let lon = -180; lon < 180; lon += 15) {
+          g.beginPath(); let first = true;
+          for (let lat = -88; lat <= 88; lat += 4) { const p = project(lat, lon, R, cx, cy); if (p.z < 0) { first = true; continue; } first ? g.moveTo(p.x, p.y) : g.lineTo(p.x, p.y); first = false; }
+          g.strokeStyle = "rgba(143, 211, 255, 0.09)"; g.stroke();
+        }
+        g.strokeStyle = "rgba(143, 211, 255, 0.35)"; g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.stroke();
+        links.forEach(function (lk, i) {
+          const a = sites[lk[0]], b = sites[lk[1]];
+          g.beginPath(); let first = true, seen = false;
+          for (let t = 0; t <= 1.0001; t += 0.04) {
+            const q = slerp(a, b, t), lift = 1 + 0.18 * Math.sin(Math.PI * t), p = project(q[0], q[1], R * lift, cx, cy);
+            if (p.z < -0.05) { first = true; continue; } seen = true; first ? g.moveTo(p.x, p.y) : g.lineTo(p.x, p.y); first = false;
+          }
+          if (seen) { g.strokeStyle = "rgba(255, 181, 71, 0.28)"; g.stroke(); }
+          const t = ((now * 0.00018) + i * 0.13) % 1, q = slerp(a, b, t), p = project(q[0], q[1], R * (1 + 0.18 * Math.sin(Math.PI * t)), cx, cy);
+          if (p.z > 0) { g.fillStyle = "rgba(255, 210, 140, 0.95)"; g.beginPath(); g.arc(p.x, p.y, 2.2, 0, Math.PI * 2); g.fill(); }
+        });
+        sites.forEach(function (s0) {
+          const p = project(s0[0], s0[1], R, cx, cy); if (p.z < 0) return;
+          g.fillStyle = "rgba(143, 211, 255, 0.9)"; g.beginPath(); g.arc(p.x, p.y, 2.4, 0, Math.PI * 2); g.fill();
+          g.strokeStyle = "rgba(143, 211, 255, " + (0.35 + 0.25 * Math.sin(now * 0.003)) + ")"; g.beginPath(); g.arc(p.x, p.y, 6, 0, Math.PI * 2); g.stroke();
+        });
+        if (!still && !document.hidden) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      document.addEventListener("visibilitychange", function () { if (!document.hidden && !still) { last = performance.now(); requestAnimationFrame(frame); } });
+    })();
+    // The counters count up once.
+    (function () {
+      document.querySelectorAll("[data-count]").forEach(function (el) {
+        const end = +el.dataset.count, t0 = performance.now();
+        (function step(now) { const k = Math.min(1, (now - t0) / 1400); el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
+      });
+    })();
+  </script>
+</body>
+</html>
