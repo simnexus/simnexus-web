@@ -386,11 +386,13 @@
     <section class="videos" id="videos" data-shape="1">
       <figure class="fade">
         <figcaption><span lang="en">The application at a glance</span><span lang="es">Presentación de la aplicación</span></figcaption>
-        <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
+        <video lang="en" src="video/intro_en.mp4" poster="img/intro_poster_en.jpg" controls muted playsinline preload="none"></video>
+        <video lang="es" src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
       </figure>
       <figure class="fade">
         <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo: planificar, pilotar y operar</span></figcaption>
-        <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
+        <video lang="en" src="video/demo_en.mp4" poster="img/demo_poster_en.jpg" controls muted playsinline preload="none"></video>
+        <video lang="es" src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
       </figure>
     </section>
 
@@ -413,7 +415,7 @@
 
   // language
   const root = document.documentElement, langButtons = document.querySelectorAll("[data-set-lang]");
-  function setLang(l) { root.dataset.lang = l; root.lang = l; langButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === l))); }
+  function setLang(l) { document.querySelectorAll(".videos video").forEach(v => v.pause()); root.dataset.lang = l; root.lang = l; langButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === l))); }
   let saved = null; try { saved = localStorage.getItem("simnexus-lang"); } catch (e) {}
   setLang(saved === "es" ? "es" : "en");
   langButtons.forEach(b => b.addEventListener("click", () => { setLang(b.dataset.setLang); try { localStorage.setItem("simnexus-lang", b.dataset.setLang); } catch (e) {} }));

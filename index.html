@@ -9,82 +9,141 @@
 <meta property="og:description" content="AI-driven tactical simulation to train, analyse and test air, land and drone operations.">
 <meta property="og:image" content="img/hero.png">
 <link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0b121a;
-    --surface: #101923;
-    --raised: #172232;
-    --border: #29394a;
-    --text: #e5edf4;
-    --muted: #a7bacb;
-    --accent: #4fd8f0;
-    --warm: #ff9a4d;
-  }
+  :root { --bg: #03040a; --text: #f3f6ff; --muted: #9aa3c4; --c1: #5ef2ff; --c2: #ff3d9a; --c3: #39ffb0; --c4: #b48cff; --line: rgba(94, 242, 255, 0.14); }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  /* One language at a time: the other's texts are hidden. */
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 "Inter", system-ui, sans-serif; overflow-x: hidden; }
   html[data-lang="en"] [lang="es"], html[data-lang="es"] [lang="en"] { display: none !important; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
-  header.hero { background: #09141d; border-bottom: 1px solid var(--border); position: relative; }
-  header.hero img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; filter: brightness(0.82); }
-  .lang-switch {
-    position: absolute; top: 12px; right: 16px;
-    display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
-    background: rgba(11, 18, 26, 0.85);
-  }
-  .lang-switch button {
-    background: transparent; color: var(--muted); border: 0; padding: 4px 12px;
-    font: 600 0.85rem system-ui, sans-serif; cursor: pointer;
-  }
-  .lang-switch button[aria-pressed="true"] { background: var(--accent); color: #062029; }
-  .tagline { text-align: center; padding-top: 36px; padding-bottom: 44px; }
-  .tagline h1 { margin: 0 0 12px; font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 650; line-height: 1.25; }
-  .tagline p { margin: 0 auto; max-width: 720px; color: var(--muted); }
-  .to-videos {
-    display: inline-block; margin-top: 22px; padding: 8px 18px;
-    border: 1px solid var(--accent); border-radius: 999px; color: var(--accent);
-    text-decoration: none; font-size: 0.95rem;
-  }
-  .to-videos:hover { background: rgba(79, 216, 240, 0.12); }
-  section { padding: 48px 0; border-top: 1px solid var(--border); }
-  h2 { margin: 0 0 24px; font-size: 1.5rem; }
-  /* Cards of one width, centred: a short last row sits in the middle. */
-  .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
-  .grid .card { flex: 0 1 246px; }
-  @media (max-width: 560px) { .grid .card { flex-basis: 100%; } }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
-  .card h3 { margin: 0 0 8px; font-size: 1.08rem; color: var(--accent); }
-  .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
-  .suite-intro { margin: -8px 0 24px; color: var(--muted); }
-  .app-icon { width: 60px; height: 60px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(79, 216, 240, 0.18)); }
-  .app-icon .tile { fill: url(#sn-tile); stroke: rgba(79, 216, 240, 0.35); stroke-width: 1; }
+  a { color: var(--c1); }
+  ::selection { background: var(--c2); color: #fff; }
+
+  /* the particles: fixed behind everything */
+  #morph { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .vignette { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+              background: radial-gradient(ellipse at center, transparent 40%, rgba(3, 4, 10, 0.75) 100%); }
+  main, nav, footer { position: relative; z-index: 2; }
+
+  /* boot sequence */
+  #boot { position: fixed; inset: 0; z-index: 100; background: #02030a; display: grid; place-items: center;
+          font: 500 0.82rem "JetBrains Mono", monospace; color: var(--c1); letter-spacing: 0.12em;
+          transition: clip-path 1.1s cubic-bezier(0.77, 0, 0.18, 1); clip-path: inset(0 0 0 0); }
+  #boot.open { clip-path: inset(0 0 100% 0); }
+  #boot .lines { width: min(560px, 86vw); }
+  #boot .l { opacity: 0; white-space: nowrap; overflow: hidden; }
+  #boot .l.on { opacity: 1; animation: type 0.5s steps(30) both; }
+  #boot .ok { color: var(--c3); }
+  @keyframes type { from { width: 0; } to { width: 100%; } }
+  #boot .bar { height: 2px; background: rgba(94, 242, 255, 0.15); margin-top: 18px; overflow: hidden; }
+  #boot .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--c1), var(--c2)); transition: width 0.25s; }
+  #boot .skip { position: absolute; bottom: 24px; right: 28px; color: var(--muted); font-size: 0.7rem; }
+
+  /* navigation */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; gap: 28px; padding: 16px 32px;
+        mix-blend-mode: difference; }
+  .brand { font: 700 1.55rem "Rajdhani", sans-serif; letter-spacing: 0.38em; color: #fff; text-decoration: none; }
+  nav .links { margin-left: auto; display: flex; gap: 26px; }
+  nav .links a { color: #fff; text-decoration: none; font: 500 0.78rem "JetBrains Mono", monospace; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.8; }
+  nav .links a:hover { opacity: 1; }
+  .lang { display: flex; gap: 2px; }
+  .lang button { background: none; border: 1px solid #fff; color: #fff; padding: 3px 10px; font: 600 0.72rem "JetBrains Mono", monospace; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: #fff; color: #000; }
+  @media (max-width: 760px) { nav .links { display: none; } nav { padding: 14px 18px; } }
+
+  /* scenes: full-screen chapters the particles follow */
+  .scene { min-height: 100vh; display: flex; align-items: center; padding: 140px 8vw 120px; }
+  .scene.right { justify-content: flex-end; text-align: right; }
+  .scene .inner { max-width: 620px; }
+  .kicker { font: 500 0.74rem "JetBrains Mono", monospace; letter-spacing: 0.3em; text-transform: uppercase; color: var(--c1); margin-bottom: 18px;
+            display: inline-flex; gap: 10px; align-items: center; }
+  .kicker::before { content: ""; width: 34px; height: 1px; background: currentColor; }
+  .scene.right .kicker { flex-direction: row-reverse; }
+  .mega { font: 700 clamp(2.6rem, 6.4vw, 6rem)/0.95 "Rajdhani", sans-serif; letter-spacing: -0.01em; margin: 0; text-transform: uppercase; }
+  .big { font: 700 clamp(2.4rem, 6vw, 5rem)/0.98 "Rajdhani", sans-serif; margin: 0 0 22px; text-transform: uppercase; }
+  .grad { background: linear-gradient(90deg, var(--c1), var(--c4), var(--c2)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+          animation: flow 6s linear infinite; }
+  @keyframes flow { to { background-position: 200% 0; } }
+  .lead { font-size: 1.2rem; color: var(--muted); max-width: 560px; }
+  .scene.right .lead { margin-left: auto; }
+
+  /* words rising from a mask */
+  .split .w { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .split .w > span { display: inline-block; transform: translateY(105%); transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .split.in .w > span { transform: none; }
+  .fade { opacity: 0; transform: translateY(30px); filter: blur(6px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .fade.in { opacity: 1; transform: none; filter: none; }
+
+  .cta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
+  .btn { position: relative; display: inline-block; padding: 15px 28px; border-radius: 999px; text-decoration: none; color: var(--text);
+         font: 700 0.9rem "Rajdhani", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid rgba(243, 246, 255, 0.3);
+         transition: border-color 0.3s, background 0.3s; will-change: transform; }
+  .btn.solid { background: linear-gradient(120deg, var(--c1), var(--c4) 55%, var(--c2)); color: #05040c; border: 0; box-shadow: 0 10px 40px rgba(94, 242, 255, 0.25); }
+  .btn:not(.solid):hover { border-color: var(--c1); background: rgba(94, 242, 255, 0.08); }
+  .scroll-hint { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font: 500 0.7rem "JetBrains Mono", monospace; letter-spacing: 0.3em; color: var(--muted); }
+  .scroll-hint::after { content: ""; display: block; width: 1px; height: 44px; margin: 10px auto 0; background: linear-gradient(var(--c1), transparent); animation: drip 2s infinite; }
+  @keyframes drip { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+  .stats { display: flex; gap: 46px; margin-top: 50px; flex-wrap: wrap; }
+  .stats b { display: block; font: 700 3.2rem/1 "Rajdhani", sans-serif; }
+  .stats span { font: 500 0.72rem "JetBrains Mono", monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  /* the suite: a horizontal run while scrolling down */
+  .hscroll { position: relative; height: 380vh; }
+  .hscroll .pin { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .hscroll .head { padding: 0 8vw 30px; }
+  .track { display: flex; gap: 28px; padding: 0 8vw; will-change: transform; }
+  .app-card { flex: 0 0 min(380px, 78vw); min-height: 340px; padding: 34px 30px; border-radius: 22px; position: relative; overflow: hidden;
+              background: linear-gradient(160deg, rgba(20, 24, 44, 0.85), rgba(8, 10, 20, 0.9)); border: 1px solid var(--line); backdrop-filter: blur(8px);
+              transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s; }
+  .app-card:hover { transform: translateY(-10px) scale(1.02); border-color: rgba(94, 242, 255, 0.5); }
+  .app-card::before { content: attr(data-n); position: absolute; right: 22px; top: 14px; font: 700 5rem/1 "Rajdhani", sans-serif; color: rgba(94, 242, 255, 0.07); }
+  .app-card h3 { font: 700 1.6rem "Rajdhani", sans-serif; margin: 10px 0; }
+  .app-card p { color: var(--muted); margin: 0; }
+  .app-icon { width: 76px; height: 76px; display: block; filter: drop-shadow(0 0 16px rgba(94, 242, 255, 0.25)); }
+  .app-icon .tile { fill: url(#sn-tile); stroke: rgba(94, 242, 255, 0.4); stroke-width: 1; }
   .app-icon .glyph { fill: none; stroke: url(#sn-stroke); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-  .app-icon .dot { fill: #4fd8f0; stroke: none; }
-  .app-icon .core { fill: rgba(255, 154, 77, 0.25); stroke: #ff9a4d; }
-  .app-icon .rec { fill: #ff5a5a; stroke: none; filter: drop-shadow(0 0 4px #ff5a5a); }
-  .app-icon .flame { stroke: #ff9a4d; }
-  .app:hover .app-icon { filter: drop-shadow(0 0 14px rgba(79, 216, 240, 0.35)); }
-  .uses { display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 0; list-style: none; }
-  .uses li { background: var(--raised); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 0.95rem; }
-  .videos { display: grid; gap: 32px; max-width: 620px; margin: 0 auto; }
+  .app-icon .dot { fill: var(--c1); stroke: none; } .app-icon .core { fill: rgba(255, 61, 154, 0.25); stroke: var(--c2); }
+  .app-icon .rec { fill: #ff4d6d; stroke: none; } .app-icon .flame { stroke: var(--c2); }
+  .progress { height: 2px; margin: 40px 8vw 0; background: var(--line); }
+  .progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--c1), var(--c2)); }
+  @media (max-width: 760px) { .hscroll { height: auto; } .hscroll .pin { position: static; height: auto; padding: 100px 0; } .track { flex-direction: column; transform: none !important; } .app-card { flex-basis: auto; } .progress { display: none; } }
+
+  /* capabilities */
+  .caps { padding: 140px 8vw; }
+  .caps .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-top: 50px; }
+  @media (max-width: 980px) { .caps .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .caps .grid { grid-template-columns: 1fr; } }
+  .caps .card { background: rgba(3, 4, 10, 0.88); padding: 34px 30px; transition: background 0.4s; }
+  .caps .card:hover { background: rgba(20, 24, 44, 0.92); }
+  .caps .card h3 { font: 700 1.35rem "Rajdhani", sans-serif; margin: 0 0 10px; color: var(--c1); }
+  .caps .card p { margin: 0; color: var(--muted); }
+
+  .videos { padding: 140px 8vw; display: grid; gap: 50px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
   .videos figure { margin: 0; }
-  .videos video { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); background: #000; display: block; }
-  .videos figcaption { margin-bottom: 10px; color: var(--text); font-size: 1.05rem; font-weight: 600; }
-  .contact { text-align: center; }
-  .contact p { color: var(--muted); }
-  a { color: var(--accent); }
-  footer { padding: 24px 0 40px; text-align: center; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
-  footer img { width: 40px; height: 40px; border-radius: 8px; vertical-align: middle; margin-right: 8px; }
+  .videos figcaption { font: 700 1.2rem "Rajdhani", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+  .videos video { width: 100%; border-radius: 18px; border: 1px solid var(--line); background: #000; display: block; }
+  .contact { padding: 160px 8vw; text-align: center; }
+  .soon-note { margin: 0 auto 40px; font-size: 1.3rem; color: var(--text); }
+  footer { padding: 30px; text-align: center; color: var(--muted); font: 500 0.75rem "JetBrains Mono", monospace; letter-spacing: 0.14em; border-top: 1px solid var(--line); }
+
+  /* cursor: a dot and a lagging ring, inverting what they cross */
+  .cur, .ring { position: fixed; left: 0; top: 0; z-index: 200; pointer-events: none; border-radius: 50%; mix-blend-mode: difference; display: none; }
+  .cur { width: 8px; height: 8px; margin: -4px; background: #fff; }
+  .ring { width: 42px; height: 42px; margin: -21px; border: 1px solid #fff; transition: width 0.3s, height 0.3s, margin 0.3s; }
+  .ring.big { width: 84px; height: 84px; margin: -42px; }
+  @media (hover: hover) and (pointer: fine) { .cur, .ring { display: block; } body { cursor: none; } a, button { cursor: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .split .w > span, .fade { transform: none; opacity: 1; filter: none; }
+    #boot { display: none; }
+  }
 </style>
 </head>
 <body>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <linearGradient id="sn-stroke" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#4fd8f0"/><stop offset=".6" stop-color="#8fb8ff"/><stop offset="1" stop-color="#ff9a4d"/>
@@ -94,181 +153,479 @@
       </radialGradient>
     </defs>
   </svg>
-  <header class="hero">
-    <img src="img/hero.png" alt="SimNexus: a fighter drawn in circuits with an AI chip, a tank and a drone, next to the name SimNexus">
-    <div class="lang-switch" role="group" aria-label="Language">
+  <canvas id="morph" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="cur" aria-hidden="true"></div><div class="ring" aria-hidden="true"></div>
+
+  <div id="boot" aria-hidden="true">
+    <div class="lines">
+      <div class="l">SIMNEXUS TACTICAL SUITE // BOOT</div>
+      <div class="l">LOADING TERRAIN ............ <span class="ok">OK</span></div>
+      <div class="l">FLIGHT DYNAMICS ............ <span class="ok">OK</span></div>
+      <div class="l">SENSORS · WEAPONS · COMMS ... <span class="ok">OK</span></div>
+      <div class="l">AI PILOTS ONLINE ........... <span class="ok">OK</span></div>
+      <div class="l">BATTLESPACE READY</div>
+      <div class="bar"><i></i></div>
+    </div>
+    <div class="skip">CLICK TO SKIP</div>
+  </div>
+
+  <nav>
+    <a class="brand" href="#top">SIMNEXUS</a>
+    <div class="links">
+      <a href="#suite"><span lang="en">Suite</span><span lang="es">Suite</span></a>
+      <a href="#capabilities"><span lang="en">Capabilities</span><span lang="es">Capacidades</span></a>
+      <a href="#videos"><span lang="en">Videos</span><span lang="es">Vídeos</span></a>
+      <a href="#contact"><span lang="en">Contact</span><span lang="es">Contacto</span></a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
       <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
       <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
     </div>
-  </header>
+  </nav>
 
   <main>
-    <div class="wrap tagline">
-      <h1 lang="en">Every domain. One battlespace. Real decisions.</h1>
-      <h1 lang="es">Todos los dominios. Un campo de batalla. Decisiones reales.</h1>
-      <p lang="en">Aircraft, vehicles and drones over real terrain, flown by your crews or by AI pilots that learn to win.</p>
-      <p lang="es">Aviones, vehículos y drones sobre terreno real, pilotados por tus tripulaciones o por pilotos de IA que aprenden a ganar.</p>
-      <a class="to-videos" href="#videos"><span lang="en">▶ Watch the videos</span><span lang="es">▶ Ver vídeos</span></a>
-    </div>
+    <section class="scene" id="top" data-shape="0" style="position:relative">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Air · Land · Sea · Drones · Space</span><span lang="es">Aire · Tierra · Mar · Drones · Espacio</span></div>
+        <h1 class="mega split"><span lang="en">Every domain.<br>One battlespace.<br><span class="grad">Real decisions.</span></span><span lang="es">Todos los dominios.<br>Un campo de batalla.<br><span class="grad">Decisiones reales.</span></span></h1>
+        <div class="cta fade">
+          <a class="btn solid magnet" href="#suite"><span lang="en">Explore the suite</span><span lang="es">Descubre la suite</span></a>
+          <a class="btn magnet" href="#videos"><span lang="en">▶ Watch the videos</span><span lang="es">▶ Ver vídeos</span></a>
+        </div>
+      </div>
+      <div class="scroll-hint">SCROLL</div>
+    </section>
 
-    <section>
-      <div class="wrap">
-        <h2><span lang="en">The suite</span><span lang="es">La suite</span></h2>
-        <p class="suite-intro" lang="en">Eight applications that work together: each station runs the one its role needs.</p>
-        <p class="suite-intro" lang="es">Ocho aplicaciones que trabajan juntas: cada puesto usa la que necesita su papel.</p>
-        <div class="grid">
-          <div class="card app">
+    <section class="scene right" data-shape="1">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Air</span><span lang="es">Aire</span></div>
+        <h2 class="big split"><span lang="en">Fly it. <span class="grad">Or let AI fly it.</span></span><span lang="es">Vuélalo. <span class="grad">O deja que la IA lo vuele.</span></span></h2>
+        <p class="lead fade" lang="en">Full flight models, sensors, missiles and countermeasures. Take any aircraft with a gamepad or joystick, or face AI pilots trained by reinforcement learning.</p>
+        <p class="lead fade" lang="es">Modelos de vuelo completos, sensores, misiles y contramedidas. Toma cualquier avión con mando o joystick, o enfréntate a pilotos de IA entrenados por refuerzo.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-shape="2">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Drones</span><span lang="es">Drones</span></div>
+        <h2 class="big split"><span lang="en">Swarms, <span class="grad">sensors, strikes.</span></span><span lang="es">Enjambres, <span class="grad">sensores, ataques.</span></span></h2>
+        <p class="lead fade" lang="en">Drones and their sensor operators in the same scenario as aircraft and ground forces, over real terrain.</p>
+        <p class="lead fade" lang="es">Drones y sus operadores de sensores en el mismo escenario que aviones y fuerzas terrestres, sobre terreno real.</p>
+      </div>
+    </section>
+
+    <section class="scene right" data-shape="5">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Sea</span><span lang="es">Mar</span></div>
+        <h2 class="big split"><span lang="en">From the deck <span class="grad">to the coast.</span></span><span lang="es">De la cubierta <span class="grad">a la costa.</span></span></h2>
+        <p class="lead fade" lang="en">Ships and surface units in the same battlespace: their sensors, their weapons, their radios over the sea.</p>
+        <p class="lead fade" lang="es">Barcos y unidades de superficie en el mismo campo de batalla: sus sensores, sus armas y sus radios sobre el mar.</p>
+      </div>
+    </section>
+
+    <section class="scene right" data-shape="3">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Artificial intelligence</span><span lang="es">Inteligencia artificial</span></div>
+        <h2 class="big split"><span lang="en">An enemy <span class="grad">that thinks.</span></span><span lang="es">Un enemigo <span class="grad">que piensa.</span></span></h2>
+        <p class="lead fade" lang="en">Entities that pursue, evade and decide for themselves, and pilots that learn to win. Train against the unexpected.</p>
+        <p class="lead fade" lang="es">Entidades que persiguen, evaden y deciden por sí mismas, y pilotos que aprenden a ganar. Entrena contra lo inesperado.</p>
+      </div>
+    </section>
+
+    <section class="scene" data-shape="4">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Land · real terrain</span><span lang="es">Tierra · terreno real</span></div>
+        <h2 class="big split"><span lang="en">The ground <span class="grad">is real.</span></span><span lang="es">El terreno <span class="grad">es real.</span></span></h2>
+        <p class="lead fade" lang="en">Vehicles on real elevation, ships on the real coast, radios that the hills block, data links that need line of sight. The battlespace behaves like the world.</p>
+        <p class="lead fade" lang="es">Vehículos sobre la elevación real, barcos en la costa real, radios que las lomas cortan, enlaces de datos que necesitan visión directa. El campo de batalla se comporta como el mundo.</p>
+        <div class="stats fade">
+          <div><b data-count="8">0</b><span lang="en">applications</span><span lang="es">aplicaciones</span></div>
+          <div><b data-count="5">0</b><span lang="en">domains</span><span lang="es">dominios</span></div>
+          <div><b data-count="1">0</b><span lang="en">battlespace</span><span lang="es">campo de batalla</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene right" data-shape="6">
+      <div class="inner">
+        <div class="kicker fade"><span lang="en">Space</span><span lang="es">Espacio</span></div>
+        <h2 class="big split"><span lang="en">All the way <span class="grad">to orbit.</span></span><span lang="es">Hasta <span class="grad">la órbita.</span></span></h2>
+        <p class="lead fade" lang="en">Satellites over the battlespace: their passes, their coverage and the links they carry, part of the same picture.</p>
+        <p class="lead fade" lang="es">Satélites sobre el campo de batalla: sus pasadas, su cobertura y los enlaces que llevan, dentro del mismo escenario.</p>
+      </div>
+    </section>
+
+    <section class="hscroll" id="suite" data-shape="0">
+      <div class="pin">
+        <div class="head">
+          <div class="kicker"><span lang="en">The suite</span><span lang="es">La suite</span></div>
+          <h2 class="big split"><span lang="en">Eight applications. <span class="grad">One mission.</span></span><span lang="es">Ocho aplicaciones. <span class="grad">Una misión.</span></span></h2>
+        </div>
+        <div class="track">
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 9c9 6 13 17 10 30l-10 7-10-7C19 26 23 15 32 9z"/><circle cx="32" cy="24" r="4.5"/><path d="M22 37l-8 6 2 10 9-6M42 37l8 6-2 10-9-6"/><path d="M27 48l5 9 5-9" class="flame"/><path d="M32 30v8" opacity=".5"/></g></svg>
             <h3>SimNexus Launcher</h3>
             <p lang="en">Starts and organises the stations of an exercise on each computer.</p>
             <p lang="es">Arranca y organiza los puestos de un ejercicio en cada equipo.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="13" opacity=".7"/><circle cx="32" cy="32" r="5" opacity=".5"/><path d="M32 7v9M32 48v9M7 32h9M48 32h9"/><path d="M32 32L46 20" stroke-width="3"/><circle cx="41" cy="40" r="2.2" class="dot"/><circle cx="22" cy="23" r="1.8" class="dot"/></g></svg>
             <h3>SimNexus Tactical</h3>
             <p lang="en">The 2D and 3D tactical view: plan the mission, task the entities, follow the scenario and its communications.</p>
             <p lang="es">El visor táctico 2D y 3D: planificar la misión, asignar tareas, seguir el escenario y sus comunicaciones.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M32 5l3 9 11 6v3l-11-2-1 6 4 3v2l-6-1-6 1v-2l4-3-1-6-11 2v-3l11-6z"/><path d="M6 51h22l-3 6H9z"/><rect x="10" y="44" width="13" height="7" rx="2"/><path d="M23 47h8"/><circle cx="12" cy="54" r="1.4" class="dot"/><circle cx="17" cy="54" r="1.4" class="dot"/><circle cx="22" cy="54" r="1.4" class="dot"/><path d="M42 42l10 10M52 42L42 52"/><circle cx="42" cy="42" r="3.2"/><circle cx="52" cy="42" r="3.2"/><circle cx="42" cy="52" r="3.2"/><circle cx="52" cy="52" r="3.2"/><rect x="45" y="45" width="4" height="4" rx="1" class="core"/><path d="M32 46v-9" stroke-width="3"/><circle cx="32" cy="35" r="3" class="core"/><path d="M27 48h10" /></g></svg>
             <h3>SimNexus Pilot</h3>
             <p lang="en">The pilot station: fly an aircraft or a drone, or drive a vehicle, with a gamepad or joystick; or crew it as gunner or sensor operator.</p>
             <p lang="es">El puesto de pilotaje: volar un avión o un dron, o conducir un vehículo, con mando o joystick; o tripularlo como artillero u operador de sensores.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="10" y="9" width="44" height="13" rx="3"/><rect x="10" y="26" width="44" height="13" rx="3"/><rect x="10" y="43" width="44" height="13" rx="3"/><circle cx="17" cy="15.5" r="1.8" class="dot"/><circle cx="17" cy="32.5" r="1.8" class="dot"/><circle cx="17" cy="49.5" r="1.8" class="dot"/><path d="M38 15.5h10M38 32.5h10M38 49.5h10" opacity=".6"/><path d="M24 15.5h8M24 32.5h8M24 49.5h8" opacity=".35"/></g></svg>
             <h3>SimNexus Backend</h3>
             <p lang="en">The simulation engine: runs the mission, shares it across several computers and connects it to other simulators.</p>
             <p lang="es">El motor de simulación: ejecuta la misión, la reparte entre varios equipos y la conecta con otros simuladores.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><circle cx="12" cy="20" r="4"/><circle cx="12" cy="44" r="4"/><circle cx="32" cy="12" r="4"/><circle cx="32" cy="32" r="4"/><circle cx="32" cy="52" r="4"/><circle cx="52" cy="32" r="5" class="core"/><path d="M16 20l12-7M16 20l12 11M16 44l12-11M16 44l12 7M36 12l12 17M36 32h11M36 52l12-17" opacity=".75"/></g></svg>
             <h3>SimNexus RL</h3>
             <p lang="en">Pilots and adversaries trained by reinforcement learning, flying the scenario's aircraft.</p>
             <p lang="es">Pilotos y adversarios entrenados con aprendizaje por refuerzo, que vuelan los aviones del escenario.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="10" width="50" height="34" rx="4"/><path d="M23 54h18M32 44v10"/><path d="M15 27c5-7 10-10 17-10s12 3 17 10c-5 7-10 10-17 10s-12-3-17-10z"/><circle cx="32" cy="27" r="5"/><circle cx="32" cy="27" r="1.8" class="dot"/></g></svg>
             <h3>SimNexus Viewer</h3>
             <p lang="en">A view-only station for observers: the live mission or its replay in 2D and 3D, on a desk or a large screen.</p>
             <p lang="es">Un puesto solo para ver, para observadores: la misión en directo o su reproducción en 2D y 3D, en un equipo o en una pantalla grande.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><rect x="7" y="16" width="50" height="34" rx="5"/><circle cx="21" cy="33" r="7"/><circle cx="43" cy="33" r="7"/><circle cx="21" cy="33" r="2" opacity=".6"/><circle cx="43" cy="33" r="2" opacity=".6"/><path d="M21 40h22"/><circle cx="51" cy="10" r="4.5" class="rec"/></g></svg>
             <h3>SimNexus Recorder</h3>
             <p lang="en">Records the whole exercise, voice included, and replays it into the mission so every station sees it again.</p>
             <p lang="es">Graba el ejercicio completo, voz incluida, y lo reproduce en la misión para que todos los puestos lo vuelvan a ver.</p>
-          </div>
-          <div class="card app">
+          </article>
+          <article class="app-card">
             <svg class="app-icon" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" x="1" y="1" width="62" height="62" rx="15"/><g class="glyph"><path d="M10 54h44M12 8v46"/><path d="M14 44l11-14 9 7 12-18 8 6"/><circle cx="25" cy="30" r="2.4" class="dot"/><circle cx="34" cy="37" r="2.4" class="dot"/><circle cx="46" cy="19" r="2.4" class="dot"/><path d="M34 37v17" opacity=".35" stroke-dasharray="2 3"/></g></svg>
             <h3>SimNexus Debrief</h3>
             <p lang="en">The debriefing: the recorded mission with its timeline, voice and notes, to review what happened and why.</p>
             <p lang="es">El debriefing: la misión grabada con su línea de tiempo, voz y anotaciones, para revisar qué pasó y por qué.</p>
-          </div>
+          </article>
         </div>
-      </div>
-    </section>
-    <section>
-      <div class="wrap">
-        <h2><span lang="en">What it offers</span><span lang="es">Qué ofrece</span></h2>
-        <div class="grid">
-          <div class="card">
-            <h3><span lang="en">Air, land and drone scenarios</span><span lang="es">Escenarios aire, tierra y drones</span></h3>
-            <p lang="en">Missions with aircraft, vehicles and drones over real terrain, with sensors, weapons and countermeasures.</p>
-            <p lang="es">Misiones con aeronaves, vehículos y drones sobre terreno real, con sensores, armas y contramedidas.</p>
-          </div>
-          <div class="card">
-            <h3><span lang="en">Artificial intelligence</span><span lang="es">Inteligencia artificial</span></h3>
-            <p lang="en">Entities that pursue, evade and decide for themselves, with pilots trained by reinforcement learning.</p>
-            <p lang="es">Entidades que persiguen, evaden y deciden por sí mismas, con pilotos entrenados mediante aprendizaje por refuerzo.</p>
-          </div>
-          <div class="card">
-            <h3><span lang="en">Pilot stations</span><span lang="es">Puestos de pilotaje</span></h3>
-            <p lang="en">Any entity can be taken over and flown or driven with a gamepad or joystick, with its own flight model and instruments.</p>
-            <p lang="es">Cualquier entidad se puede tomar y pilotar con mando o joystick, con su propio modelo de vuelo y sus instrumentos.</p>
-          </div>
-          <div class="card">
-            <h3><span lang="en">Tactical communications</span><span lang="es">Comunicaciones tácticas</span></h3>
-            <p lang="en">Voice radios and data links with range, interference and propagation, and a monitor that shows every message.</p>
-            <p lang="es">Radios de voz y enlaces de datos con alcance, interferencias y propagación, y un monitor que muestra cada mensaje.</p>
-          </div>
-          <div class="card">
-            <h3><span lang="en">Tactical view</span><span lang="es">Visión táctica</span></h3>
-            <p lang="en">A 2D and 3D view of the scenario with every entity, its tasks and what it detects.</p>
-            <p lang="es">Un visor 2D y 3D del escenario con todas las entidades, sus tareas y lo que detectan.</p>
-          </div>
-          <div class="card">
-            <h3><span lang="en">Shared exercise</span><span lang="es">Ejercicio compartido</span></h3>
-            <p lang="en">Instructor, pilots and operators take part in the same exercise from their own computers, in real time.</p>
-            <p lang="es">Instructor, pilotos y operadores participan desde sus propios equipos en el mismo ejercicio, en tiempo real.</p>
-          </div>
-        </div>
+        <div class="progress"><i></i></div>
       </div>
     </section>
 
-
-    <section>
-      <div class="wrap">
-        <h2 id="videos"><span lang="en">Videos</span><span lang="es">Vídeos</span></h2>
-        <div class="videos">
-          <figure>
-            <figcaption><span lang="en">The application at a glance</span><span lang="es">Presentación de la aplicación</span></figcaption>
-            <video src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
-          </figure>
-          <figure>
-            <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo de funcionalidad: planificar, pilotar y operar</span></figcaption>
-            <video src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
-          </figure>
-        </div>
+    <section class="caps" id="capabilities" data-shape="3">
+      <div class="kicker fade"><span lang="en">Capabilities</span><span lang="es">Capacidades</span></div>
+      <h2 class="big split"><span lang="en">Everything <span class="grad">in one suite.</span></span><span lang="es">Todo <span class="grad">en una suite.</span></span></h2>
+      <div class="grid">
+          <div class="card">
+            <h3><span lang="en">Air, land, sea, drones and space</span><span lang="es">Aire, tierra, mar, drones y espacio</span></h3>
+            <p lang="en">Aircraft, ships, ground vehicles, drones and satellites in one scenario over real terrain.</p>
+            <p lang="es">Aviones, barcos, vehículos terrestres, drones y satélites en un mismo escenario sobre terreno real.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Real flight dynamics</span><span lang="es">Dinámica de vuelo real</span></h3>
+            <p lang="en">Each aircraft flies with its own flight model and published data, with fuel, G-loads and an autopilot.</p>
+            <p lang="es">Cada avión vuela con su propio modelo de vuelo y datos publicados, con combustible, cargas G y piloto automático.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Ground vehicles on real terrain</span><span lang="es">Vehículos sobre terreno real</span></h3>
+            <p lang="en">Wheeled and tracked vehicles drive on real elevation and land cover, with physics for the ground they cross.</p>
+            <p lang="es">Vehículos de ruedas y cadenas sobre la elevación y el suelo reales, con física para el terreno que pisan.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Sensors</span><span lang="es">Sensores</span></h3>
+            <p lang="en">Radar, electro-optical and infrared sensors that detect, track and lose targets as terrain and range allow.</p>
+            <p lang="es">Radar y sensores electroópticos e infrarrojos que detectan, siguen y pierden blancos según el terreno y el alcance.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Weapons and countermeasures</span><span lang="es">Armas y contramedidas</span></h3>
+            <p lang="en">Missiles with their guidance, bombing passes, guns, and chaff and flares that a pilot or the AI can use.</p>
+            <p lang="es">Misiles con su guiado, pasadas de bombardeo, cañones, y chaff y bengalas que usan el piloto o la IA.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Tasks and mission plans</span><span lang="es">Tareas y planes de misión</span></h3>
+            <p lang="en">Patrol, intercept, escort, close air support, return to base: plans that chain tasks and react to what happens.</p>
+            <p lang="es">Patrulla, interceptación, escolta, apoyo aéreo cercano, vuelta a base: planes que encadenan tareas y reaccionan.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">AI behaviours and AI pilots</span><span lang="es">Comportamientos y pilotos de IA</span></h3>
+            <p lang="en">Entities that decide for themselves, and pilots trained by reinforcement learning that evade and pursue.</p>
+            <p lang="es">Entidades que deciden por sí mismas y pilotos entrenados por refuerzo que evaden y persiguen.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Voice radios that behave like radios</span><span lang="es">Radios de voz realistas</span></h3>
+            <p lang="en">Range, terrain and propagation, noise near the limit, squelch, push-to-talk and VOX, and secure voice.</p>
+            <p lang="es">Alcance, terreno y propagación, ruido cerca del límite, squelch, PTT y VOX, y voz cifrada.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Tactical data links</span><span lang="es">Enlaces de datos tácticos</span></h3>
+            <p lang="en">Shared tracks, assignments from a command post and relays, each net with its own rules and range.</p>
+            <p lang="es">Trazas compartidas, órdenes desde un puesto de mando y relés, cada red con sus reglas y su alcance.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Pilot, gunner and sensor stations</span><span lang="es">Puestos de piloto, artillero y sensores</span></h3>
+            <p lang="en">Take any aircraft, vehicle or drone with a gamepad or joystick, with its HUD, instruments and warnings.</p>
+            <p lang="es">Toma cualquier avión, vehículo o dron con mando o joystick, con su HUD, instrumentos y avisos.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Command and communications picture</span><span lang="es">Mando y monitor de comunicaciones</span></h3>
+            <p lang="en">A command console for the net and a monitor that shows every message, who received it and why not.</p>
+            <p lang="es">Una consola de mando de la red y un monitor que muestra cada mensaje, quién lo recibió y por qué no.</p>
+          </div>
+          <div class="card">
+            <h3><span lang="en">Many computers, one exercise</span><span lang="es">Muchos equipos, un ejercicio</span></h3>
+            <p lang="en">The mission shared across several computers and stations in real time, and connected to other simulators.</p>
+            <p lang="es">La misión repartida entre varios equipos y puestos en tiempo real, y conectada con otros simuladores.</p>
+          </div>
       </div>
     </section>
 
-    <section>
-      <div class="wrap">
-        <h2><span lang="en">What it is for</span><span lang="es">Para qué sirve</span></h2>
-        <ul class="uses">
-          <li><span lang="en">Training</span><span lang="es">Entrenamiento</span></li>
-          <li><span lang="en">Mission analysis</span><span lang="es">Análisis de misiones</span></li>
-          <li><span lang="en">Testing tactics and procedures</span><span lang="es">Pruebas de tácticas y procedimientos</span></li>
-          <li><span lang="en">AI development and testing</span><span lang="es">Desarrollo y prueba de IA</span></li>
-          <li><span lang="en">Demonstrations</span><span lang="es">Demostraciones</span></li>
-        </ul>
-      </div>
+    <section class="videos" id="videos" data-shape="1">
+      <figure class="fade">
+        <figcaption><span lang="en">The application at a glance</span><span lang="es">Presentación de la aplicación</span></figcaption>
+        <video lang="en" src="video/intro_en.mp4" poster="img/intro_poster_en.jpg" controls muted playsinline preload="none"></video>
+        <video lang="es" src="video/intro.mp4" poster="img/intro_poster.jpg" controls muted playsinline preload="none"></video>
+      </figure>
+      <figure class="fade">
+        <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo: planificar, pilotar y operar</span></figcaption>
+        <video lang="en" src="video/demo_en.mp4" poster="img/demo_poster_en.jpg" controls muted playsinline preload="none"></video>
+        <video lang="es" src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
+      </figure>
     </section>
 
-    <section class="contact">
-      <div class="wrap">
-        <h2><span lang="en">Contact</span><span lang="es">Contacto</span></h2>
-        <p lang="en">Write to us through our <a href="https://www.linkedin.com/company/simnexus/">LinkedIn page</a>.</p>
-        <p lang="es">Escríbenos a través de nuestra <a href="https://www.linkedin.com/company/simnexus/">página de LinkedIn</a>.</p>
+    <section class="contact" id="contact" data-shape="0">
+      <div class="kicker fade" style="justify-content:center"><span lang="en">Available soon</span><span lang="es">Pronto disponible</span></div>
+      <p class="lead fade soon-note" lang="en">SimNexus will soon be available for use. Get in touch to be among the first to train with it.</p>
+      <p class="lead fade soon-note" lang="es">SimNexus estará pronto disponible para su uso. Escríbenos para ser de los primeros en entrenar con él.</p>
+      <h2 class="mega split"><span lang="en">Let's <span class="grad">talk.</span></span><span lang="es">Hablemos.</span></h2>
+      <div class="cta fade" style="justify-content:center">
+        <a class="btn solid magnet" href="https://www.linkedin.com/company/simnexus/">LinkedIn</a>
       </div>
     </section>
   </main>
+  <footer>SIMNEXUS · TACTICAL SIMULATION SUITE</footer>
 
-  <footer>
-    <div class="wrap"><img src="img/emblema.png" alt="">SimNexus · <a href="https://www.linkedin.com/company/simnexus/">LinkedIn</a></div>
-  </footer>
+<script>
+(function () {
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  <script>
-    // English by default; the choice is remembered in this browser when it can be.
-    (function () {
-      const root = document.documentElement;
-      const buttons = document.querySelectorAll("[data-set-lang]");
-      function apply(lang) {
-        root.dataset.lang = lang;
-        root.lang = lang;
-        buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)); });
-      }
-      let saved = null;
-      try { saved = localStorage.getItem("simnexus-lang"); } catch (e) {}
-      apply(saved === "es" ? "es" : "en");
-      buttons.forEach(function (b) {
-        b.addEventListener("click", function () {
-          apply(b.dataset.setLang);
-          try { localStorage.setItem("simnexus-lang", b.dataset.setLang); } catch (e) {}
-        });
+  // language
+  const root = document.documentElement, langButtons = document.querySelectorAll("[data-set-lang]");
+  function setLang(l) { document.querySelectorAll(".videos video").forEach(v => v.pause()); root.dataset.lang = l; root.lang = l; langButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.setLang === l))); }
+  let saved = null; try { saved = localStorage.getItem("simnexus-lang"); } catch (e) {}
+  setLang(saved === "es" ? "es" : "en");
+  langButtons.forEach(b => b.addEventListener("click", () => { setLang(b.dataset.setLang); try { localStorage.setItem("simnexus-lang", b.dataset.setLang); } catch (e) {} }));
+
+  // boot sequence, then the curtain opens
+  const boot = document.getElementById("boot");
+  function openBoot() { boot.classList.add("open"); setTimeout(() => boot.remove(), 1200); revealAll(); }
+  if (still) { boot.remove(); } else {
+    const lines = boot.querySelectorAll(".l"), bar = boot.querySelector(".bar i");
+    lines.forEach((l, i) => setTimeout(() => { l.classList.add("on"); bar.style.width = ((i + 1) / lines.length * 100) + "%"; }, 180 + i * 280));
+    const t = setTimeout(openBoot, 180 + lines.length * 280 + 400);
+    boot.addEventListener("click", () => { clearTimeout(t); openBoot(); });
+  }
+
+  // words that rise from a mask
+  document.querySelectorAll(".split").forEach(el => {
+    const walk = node => {
+      [...node.childNodes].forEach(n => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(part => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const w = document.createElement("span"); w.className = "w"; const inner = document.createElement("span"); inner.textContent = part; w.appendChild(inner); frag.appendChild(w);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1 && n.tagName !== "BR") walk(n);
       });
-    })();
-  </script>
+    };
+    walk(el);
+    el.querySelectorAll(".w > span").forEach((s, i) => s.style.transitionDelay = (i * 55) + "ms");
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.2 });
+  function revealAll() { document.querySelectorAll(".split, .fade").forEach(el => io.observe(el)); }
+  if (still) revealAll();
+
+  // counters
+  const cio = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; const el = e.target, end = +el.dataset.count, t0 = performance.now(); cio.unobserve(el);
+    (function step(now) { const k = Math.min(1, (now - t0) / 1400); el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
+  }), { threshold: 0.5 });
+  document.querySelectorAll("[data-count]").forEach(el => cio.observe(el));
+
+  // the suite runs sideways while scrolling down
+  const hs = document.querySelector(".hscroll"), track = hs.querySelector(".track"), prog = hs.querySelector(".progress i");
+  track.querySelectorAll(".app-card").forEach((c, i) => c.dataset.n = "0" + (i + 1));
+  function hscroll() {
+    if (innerWidth <= 760) return;
+    const r = hs.getBoundingClientRect(), total = hs.offsetHeight - innerHeight, p = Math.min(1, Math.max(0, -r.top / total));
+    const max = track.scrollWidth - innerWidth + innerWidth * 0.16;
+    track.style.transform = "translateX(" + (-p * max) + "px)"; prog.style.width = (p * 100) + "%";
+  }
+
+  // cursor and magnetic buttons
+  if (fine && !still) {
+    const cur = document.querySelector(".cur"), ring = document.querySelector(".ring");
+    let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+    addEventListener("pointermove", e => { mx = e.clientX; my = e.clientY; cur.style.transform = "translate(" + mx + "px," + my + "px)"; ring.classList.toggle("big", !!e.target.closest("a, button, .app-card")); });
+    (function loop() { rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16; ring.style.transform = "translate(" + rx + "px," + ry + "px)"; requestAnimationFrame(loop); })();
+    document.querySelectorAll(".magnet").forEach(b => {
+      b.addEventListener("pointermove", e => { const r = b.getBoundingClientRect(); b.style.transform = "translate(" + ((e.clientX - r.left - r.width / 2) * 0.3) + "px," + ((e.clientY - r.top - r.height / 2) * 0.4) + "px)"; });
+      b.addEventListener("pointerleave", () => b.style.transform = "");
+    });
+  }
+
+  // particles morphing between shapes as the story scrolls: globe, fighter, drone, network, terrain
+  const cv = document.getElementById("morph"), g = cv.getContext("2d");
+  let W, H, DPR;
+  function size() { DPR = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0); }
+  size(); addEventListener("resize", size);
+  const N = innerWidth < 760 ? 800 : 1400;
+  function inPoly(x, y, poly) { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+  function fill(poly, n) { const out = []; while (out.length < n) { const x = Math.random() * 2 - 1, y = Math.random() * 2 - 1; if (inPoly(x, y, poly)) out.push([x, y, (Math.random() - 0.5) * 0.12]); } return out; }
+  const sphere = Array.from({ length: N }, (_, i) => { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.399963; return [Math.cos(th) * r, y, Math.sin(th) * r]; });
+  const jet = fill([[0,-1],[0.08,-0.62],[0.1,-0.25],[0.86,0.18],[0.86,0.3],[0.12,0.2],[0.1,0.58],[0.36,0.8],[0.36,0.9],[0,0.82],[-0.36,0.9],[-0.36,0.8],[-0.1,0.58],[-0.12,0.2],[-0.86,0.3],[-0.86,0.18],[-0.1,-0.25],[-0.08,-0.62]], N);
+  const drone = Array.from({ length: N }, (_, i) => {
+    const k = i % 10;
+    if (k < 6) { const c = [[-0.6,-0.6],[0.6,-0.6],[-0.6,0.6],[0.6,0.6]][i % 4], a = Math.random() * 6.283, r = 0.32 + (Math.random() - 0.5) * 0.04; return [c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r, (Math.random() - 0.5) * 0.05]; }
+    if (k < 9) { const t = Math.random(), d = i % 2 ? 1 : -1; return [(t - 0.5) * 1.2, d * (t - 0.5) * 1.2, 0]; }
+    return [(Math.random() - 0.5) * 0.32, (Math.random() - 0.5) * 0.32, (Math.random() - 0.5) * 0.2];
+  });
+  const layers = [4, 6, 6, 3], nodes = []; layers.forEach((n, li) => { for (let j = 0; j < n; j++) nodes.push([-0.9 + li * 0.6, (j - (n - 1) / 2) * 0.32, li]); });
+  const net = Array.from({ length: N }, (_, i) => {
+    if (i % 3 === 0) { const nd = nodes[i % nodes.length], a = Math.random() * 6.283, r = Math.random() * 0.06; return [nd[0] + Math.cos(a) * r, nd[1] + Math.sin(a) * r, (Math.random() - 0.5) * 0.1]; }
+    const a = nodes[Math.floor(Math.random() * nodes.length)], cands = nodes.filter(b => b[2] === a[2] + 1); if (!cands.length) return [a[0], a[1], 0];
+    const b = cands[Math.floor(Math.random() * cands.length)], t = Math.random(); return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0];
+  });
+  const side = Math.ceil(Math.sqrt(N));
+  const terrain = Array.from({ length: N }, (_, i) => { const x = (i % side) / side * 2.4 - 1.2, z = Math.floor(i / side) / side * 2.4 - 1.2; const y = 0.22 * Math.sin(x * 3.1) * Math.cos(z * 2.4) + 0.12 * Math.sin(x * 7 + z * 5) - 0.35; return [x, y, z]; });
+  // the frigate in profile: hull, superstructure, bridge, funnel, mast and bow gun, on a waving sea line
+  const fillMany = (parts, n) => { const total = parts.reduce((t, p) => t + p[1], 0), out = [];
+    parts.forEach(p => out.push(...fill(p[0], Math.round(n * p[1] / total)))); while (out.length < n) out.push(out[out.length - 1]); return out.slice(0, n); };
+  const shipBody = fillMany([
+    [[[-1,0],[1,0],[0.82,0.2],[-0.88,0.2]], 40],                                   // hull
+    [[[-0.4,0],[0.32,0],[0.28,-0.22],[-0.36,-0.22]], 20],                            // superstructure
+    [[[0.04,-0.22],[0.26,-0.22],[0.22,-0.36],[0.07,-0.36]], 7],                      // bridge
+    [[[-0.24,-0.22],[-0.1,-0.22],[-0.12,-0.4],[-0.21,-0.4]], 5],                     // funnel
+    [[[0.12,-0.36],[0.15,-0.36],[0.145,-0.78],[0.125,-0.78]], 3],                    // mast
+    [[[-0.02,-0.66],[0.28,-0.66],[0.28,-0.63],[-0.02,-0.63]], 2],                    // yard
+    [[[0.5,0],[0.62,0],[0.6,-0.08],[0.52,-0.08]], 3],                                 // gun turret
+    [[[0.6,-0.06],[0.8,-0.12],[0.8,-0.105],[0.6,-0.045]], 2],                        // gun barrel
+  ], Math.floor(N * 0.78)).map(q => [q[0], q[1] + 0.05, q[2]]);
+  const sea = Array.from({ length: N - shipBody.length }, (_, i) => { const x = Math.random() * 3 - 1.5; return [x, 0.27 + 0.025 * Math.sin(x * 9) + (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.3]; });
+  const ship = shipBody.concat(sea);
+  const orbits = Array.from({ length: N }, (_, i) => {
+    if (i % 5 === 0) { const y = Math.random() * 2 - 1, r = Math.sqrt(1 - y * y), a = Math.random() * 6.283; return [Math.cos(a) * r * 0.45, y * 0.45, Math.sin(a) * r * 0.45]; }  // the Earth
+    const ring = i % 3, inc = [0.35, -0.9, 1.25][ring], R = [0.8, 0.95, 1.1][ring], a = Math.random() * 6.283;
+    const sat = Math.random() < 0.15, rr = R + (sat ? (Math.random() - 0.5) * 0.05 : 0);
+    const x = Math.cos(a) * rr, z = Math.sin(a) * rr; return [x, z * Math.sin(inc), z * Math.cos(inc)];
+  });
+  const shapes = [sphere, jet, drone, net, terrain, ship, orbits];
+  // a fighter of points that flies round the globe (only while the particles are the globe)
+  const escort = fill([[0,-1],[0.08,-0.62],[0.1,-0.25],[0.86,0.18],[0.86,0.3],[0.12,0.2],[0.1,0.58],[0.36,0.8],[0.36,0.9],[0,0.82],[-0.36,0.9],[-0.36,0.8],[-0.1,0.58],[-0.12,0.2],[-0.86,0.3],[-0.86,0.18],[-0.1,-0.25],[-0.08,-0.62]], 220);
+  const trail = [];
+  // a tank of points that drives over the terrain scene, on its relief (hull and tracks, then turret and gun)
+  const ground = (x, z) => 0.22 * Math.sin(x * 3.1) * Math.cos(z * 2.4) + 0.12 * Math.sin(x * 7 + z * 5) - 0.35;
+  const hull = [], turret = [];
+  for (let i = 0; i < 260; i++) {
+    const u = Math.random() * 2 - 1, v = Math.random() * 2 - 1;
+    if (Math.abs(u) > 0.62 && Math.abs(u) < 0.85) hull.push([u * 0.55, v]);          // tracks
+    else if (Math.abs(u) <= 0.62 && Math.abs(v) < 0.85) hull.push([u * 0.55, v * 0.9]); // hull
+  }
+  for (let i = 0; i < 120; i++) {
+    const a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * 0.28; turret.push([Math.cos(a) * r, Math.sin(a) * r * 1.2 - 0.05]);
+    if (i % 3 === 0) turret.push([(Math.random() - 0.5) * 0.04, -0.3 - Math.random() * 0.75]);  // the gun
+  }
+  const tracksBehind = [];
+  const tints = [[94,242,255],[180,140,255],[57,255,176],[255,61,154],[94,242,255],[80,150,255],[255,220,140]];
+  const tilts = [0.35, 1.25, 1.1, 0, 0.9, 0.12, 0.25];  // how each shape faces the viewer
+  const jitter = Array.from({ length: N }, () => [Math.random() * 6.283, 0.5 + Math.random()]);
+  const scenes = [...document.querySelectorAll("[data-shape]")];
+  let sideA0 = 0.68, sideB0 = 0.68;
+  function stage() {
+    const mid = innerHeight * 0.5; let a = scenes[0], b = scenes[0], t = 0;
+    for (let i = 0; i < scenes.length; i++) {
+      const r = scenes[i].getBoundingClientRect(), c = r.top + Math.min(r.height, innerHeight) / 2;
+      if (c >= mid) { b = scenes[i]; a = scenes[Math.max(0, i - 1)]; const ra = a.getBoundingClientRect(), ca = ra.top + Math.min(ra.height, innerHeight) / 2; t = a === b ? 0 : Math.min(1, Math.max(0, (mid - ca) / (c - ca))); sideA0 = a.classList.contains('right') ? 0.32 : 0.68; sideB0 = b.classList.contains('right') ? 0.32 : 0.68; return [+a.dataset.shape, +b.dataset.shape, t]; }
+    }
+    const last = +scenes[scenes.length - 1].dataset.shape; return [last, last, 0];
+  }
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let rot = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(50, now - last); last = now; rot += dt * 0.00018;
+    hscroll();
+    const [ia, ib, tr] = stage(), t = ease(tr), A = shapes[ia], B = shapes[ib];
+    const col = tints[ia].map((v, k) => Math.round(v + (tints[ib][k] - v) * t)), tilt = tilts[ia] + (tilts[ib] - tilts[ia]) * t;
+    g.clearRect(0, 0, W, H);
+        const side = sideA0 + (sideB0 - sideA0) * t;
+    const scale = Math.min(W, H) * (ia === 4 || ib === 4 ? 0.48 : 0.36) * (1 - 0.32 * ((ia === 6 ? 1 - t : 0) + (ib === 6 ? t : 0))), cx = W * (innerWidth > 900 ? side : 0.5), cy = H * 0.5;
+    const spinWeight = 1 - ((ia === 5 ? 1 - t : 0) + (ib === 5 ? t : 0)) * 0.85;   // the ship keeps nearly side-on
+    const rr = rot * spinWeight + (1 - spinWeight) * 0.25 * Math.sin(now * 0.0004);
+    const cr = Math.cos(rr), sr = Math.sin(rr), ct = Math.cos(tilt), st = Math.sin(tilt);
+    g.globalCompositeOperation = "lighter";
+    for (let i = 0; i < N; i++) {
+      const p = A[i], q = B[i], j = jitter[i], wob = 0.012 * Math.sin(now * 0.001 * j[1] + j[0]) + ((ia === 5 && p[1] > 0.24) || (ib === 5 && q[1] > 0.24) ? 0.02 * Math.sin(now * 0.002 + (p[0] + q[0]) * 6) : 0);
+      let x = p[0] + (q[0] - p[0]) * t + wob, y = p[1] + (q[1] - p[1]) * t + wob, z = p[2] + (q[2] - p[2]) * t;
+      let x1 = x * cr + z * sr, z1 = -x * sr + z * cr;          // turn round the vertical axis
+      let y1 = y * ct - z1 * st, z2 = y * st + z1 * ct;          // tilt towards the viewer
+      const persp = 2.6 / (2.6 + z2), px = cx + x1 * scale * persp, py = cy + y1 * scale * persp;
+      const a = Math.max(0.18, Math.min(1, 0.75 + z2 * -0.35));
+      g.fillStyle = "rgba(" + col[0] + "," + col[1] + "," + col[2] + "," + a + ")";
+      const s = 2.1 * persp; g.fillRect(px - s / 2, py - s / 2, s, s);
+    }
+    const globe = (ia === 0 ? 1 - t : 0) + (ib === 0 ? t : 0);
+    if (globe > 0.02) {
+      const th = now * 0.00045, inc = 0.5, R = 1.32, fs = 0.11;  // its orbit: tilted, a little above the globe
+      const pos = a => { const x = Math.cos(a) * R, z = Math.sin(a) * R; return [x, z * Math.sin(inc) * 0.6 - 0.15, z * Math.cos(inc)]; };
+      const here = pos(th), ahead = pos(th + 0.02);
+      const toScreen = q => {
+        let x1 = q[0] * cr + q[2] * sr, z1 = -q[0] * sr + q[2] * cr, y1 = q[1] * ct - z1 * st, z2 = q[1] * st + z1 * ct;
+        const pe = 2.6 / (2.6 + z2); return [cx + x1 * scale * pe, cy + y1 * scale * pe, z2, pe];
+      };
+      const h0 = toScreen(here), h1 = toScreen(ahead), heading = Math.atan2(h1[1] - h0[1], h1[0] - h0[0]) + Math.PI / 2;
+      const behind = h0[2] > 0.15, alpha = globe * (behind ? 0.35 : 1);
+      trail.push([h0[0], h0[1]]); if (trail.length > 70) trail.shift();
+      g.strokeStyle = "rgba(255, 61, 154, " + (0.35 * alpha) + ")"; g.lineWidth = 1.2; g.beginPath();
+      trail.forEach((q, k) => k ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
+      const ch = Math.cos(heading), sh = Math.sin(heading), sz = scale * fs * h0[3];
+      g.fillStyle = "rgba(255, 255, 255, " + (0.95 * alpha) + ")";
+      for (const q of escort) { const px = h0[0] + (q[0] * ch - q[1] * sh) * sz, py = h0[1] + (q[0] * sh + q[1] * ch) * sz; g.fillRect(px - 0.8, py - 0.8, 1.6, 1.6); }
+      g.fillStyle = "rgba(94, 242, 255, " + (0.25 * alpha) + ")"; g.beginPath(); g.arc(h0[0], h0[1], sz * 1.1, 0, Math.PI * 2); g.fill();
+    } else trail.length = 0;
+    const land = (ia === 4 ? 1 - t : 0) + (ib === 4 ? t : 0);
+    if (land > 0.02) {
+      // its route: a slow loop over the terrain; it points where it goes, its turret scans
+      const k = now * 0.00012, px = 0.75 * Math.sin(k), pz = 0.55 * Math.sin(k * 2), hx = 0.75 * Math.cos(k), hz = 1.1 * Math.cos(k * 2);
+      const heading = Math.atan2(hx, hz), turn = Math.sin(now * 0.0006) * 0.9, size = 0.13;
+      const world = (u, v, rot, lift) => {
+        const c = Math.cos(rot), sn = Math.sin(rot), x = px + (u * c + v * sn) * size, z = pz + (-u * sn + v * c) * size;
+        return [x, ground(x, z) + lift, z];
+      };
+      const toScreen = q => {
+        let x1 = q[0] * cr + q[2] * sr, z1 = -q[0] * sr + q[2] * cr, y1 = q[1] * ct - z1 * st, z2 = q[1] * st + z1 * ct;
+        const pe = 2.6 / (2.6 + z2); return [cx + x1 * scale * pe, cy + y1 * scale * pe];
+      };
+      const here = toScreen(world(0, 0.9, heading, 0.01));
+      tracksBehind.push(here); if (tracksBehind.length > 110) tracksBehind.shift();
+      g.strokeStyle = "rgba(255, 181, 71, " + (0.35 * land) + ")"; g.lineWidth = 1.4; g.beginPath();
+      tracksBehind.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
+      g.fillStyle = "rgba(255, 210, 150, " + (0.9 * land) + ")";
+      for (const q of hull) { const sc = toScreen(world(q[0], q[1], heading, 0.02)); g.fillRect(sc[0] - 0.9, sc[1] - 0.9, 1.8, 1.8); }
+      g.fillStyle = "rgba(255, 255, 255, " + (0.95 * land) + ")";
+      for (const q of turret) { const sc = toScreen(world(q[0], q[1], heading + turn, 0.06)); g.fillRect(sc[0] - 0.9, sc[1] - 0.9, 1.8, 1.8); }
+    } else tracksBehind.length = 0;
+    g.globalCompositeOperation = "source-over";
+    if (!still) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
