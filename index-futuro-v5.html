@@ -124,6 +124,8 @@
   .videos figure { margin: 0; }
   .videos figcaption { font: 700 1.2rem "Rajdhani", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
   .videos video { width: 100%; border-radius: 18px; border: 1px solid var(--line); background: #000; display: block; }
+  .videos video[src*="rl_f16"] { max-height: 80vh; width: auto; max-width: 100%; margin: 0 auto; }
+  .vnote { color: var(--muted); margin: 14px 0 0; font-size: 0.95rem; }
   .contact { padding: 160px 8vw; text-align: center; }
   .soon-note { margin: 0 auto 40px; font-size: 1.3rem; color: var(--text); }
   footer { padding: 30px; text-align: center; color: var(--muted); font: 500 0.75rem "JetBrains Mono", monospace; letter-spacing: 0.14em; border-top: 1px solid var(--line); }
@@ -393,6 +395,11 @@
         <figcaption><span lang="en">Feature demo: plan, fly and operate</span><span lang="es">Demo: planificar, pilotar y operar</span></figcaption>
         <video lang="en" src="video/demo_en.mp4" poster="img/demo_poster_en.jpg" controls muted playsinline preload="none"></video>
         <video lang="es" src="video/demo.mp4" poster="img/demo_poster.jpg" controls muted playsinline preload="none"></video>
+      </figure>
+      <figure class="fade">
+        <figcaption><span lang="en">AI-piloted F-16: reinforcement learning</span><span lang="es">F-16 pilotado por IA: aprendizaje por refuerzo</span></figcaption>
+        <video src="video/rl_f16.mp4" poster="img/rl_f16_poster.jpg" controls muted playsinline preload="none"></video>
+        <p class="vnote"><span lang="en">An F-16 chasing another entity, flown by a neural network trained with reinforcement learning, also trained to evade missiles with countermeasures and take up attack position.</span><span lang="es">Un F-16 persiguiendo a otra entidad, pilotado por una red neuronal entrenada con aprendizaje por refuerzo, también entrenada para evadir misiles con contramedidas y ganar posición de ataque.</span></p>
       </figure>
     </section>
 
