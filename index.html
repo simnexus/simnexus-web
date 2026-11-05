@@ -124,7 +124,7 @@
   .videos figure { margin: 0; }
   .videos figcaption { font: 700 1.2rem "Rajdhani", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
   .videos video { width: 100%; border-radius: 18px; border: 1px solid var(--line); background: #000; display: block; }
-  .videos video[src*="rl_f16"] { max-height: 80vh; width: auto; max-width: 100%; margin: 0 auto; }
+  .videos video[src*="rl_f16"] { width: min(100%, 45vh); aspect-ratio: 9 / 16; height: auto; margin: 0 auto; object-fit: contain; }
   .vnote { color: var(--muted); margin: 14px 0 0; font-size: 0.95rem; }
   .contact { padding: 160px 8vw; text-align: center; }
   .soon-note { margin: 0 auto 40px; font-size: 1.3rem; color: var(--text); }
