@@ -1,0 +1,40 @@
+name: VM SSH test
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'Minutos que la VM se mantiene viva'
+        type: number
+        default: 30
+
+jobs:
+  vm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conectar la VM a Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          hostname: simnexus-ci-test
+
+      - name: Preparar SSH
+        env:
+          SSH_PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "$SSH_PUBLIC_KEY" >> ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
+          sudo systemctl start ssh || sudo service ssh start
+
+      - name: Datos de conexion
+        run: |
+          echo "Usuario: $(whoami)"
+          echo "IP Tailscale: $(tailscale ip -4)"
+          echo "Conecta con: ssh $(whoami)@simnexus-ci-test"
+
+      - name: Mantener la VM viva
+        run: sleep $(( ${{ inputs.minutes }} * 60 ))
