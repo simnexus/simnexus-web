@@ -131,6 +131,7 @@
   .videos figure { margin: 0; }
   .videos figcaption { font: 700 1.2rem "Rajdhani", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
   .videos video { width: 100%; border-radius: 18px; border: 1px solid var(--line); background: #000; display: block; }
+  .videos video[src*="mission_debrief"] { width: min(100%, 56vh); aspect-ratio: 4 / 5; height: auto; margin: 0 auto; object-fit: contain; }
   .videos video[src*="rl_f16"] { width: min(100%, 45vh); aspect-ratio: 9 / 16; height: auto; margin: 0 auto; object-fit: contain; }
   .vnote { color: var(--muted); margin: 14px 0 0; font-size: 0.95rem; }
   .contact { padding: 160px 8vw; text-align: center; }
@@ -410,6 +411,11 @@
         <video lang="en" src="video/rl_f16.mp4" poster="img/rl_f16_poster.jpg" controls muted playsinline preload="none"></video>
         <video lang="es" src="video/rl_f16_es.mp4" poster="img/rl_f16_poster_es.jpg" controls muted playsinline preload="none"></video>
         <p class="vnote"><span lang="en">An F-16 chasing another entity, flown by a neural network trained with reinforcement learning, also trained to evade missiles with countermeasures and take up attack position.</span><span lang="es">Un F-16 persiguiendo a otra entidad, pilotado por una red neuronal entrenada con aprendizaje por refuerzo, también entrenada para evadir misiles con contramedidas y ganar posición de ataque.</span></p>
+      </figure>
+      <figure class="fade">
+        <figcaption><span lang="en">Record, debrief and improve with AI</span><span lang="es">Grabar, analizar y mejorar con IA</span></figcaption>
+        <video src="video/mission_debrief_en.mp4" poster="img/mission_debrief_poster_en.jpg" controls muted playsinline preload="none"></video>
+        <p class="vnote"><span lang="en">The full mission loop, in one flow. A mission is launched in the tactical simulator and the Recorder captures everything: DIS, HLA, ROS 2 bus, radio voice and video, with markers for key moments. The session goes to the debrief database, where the debrief is dynamic: result of the engagement, detail per entity, timeline, events, sensors and comms, and charts. The AI assistant adds the metrics and charts you ask for, analyses what happened, recommends what to improve and proposes concrete changes to the mission. They are applied to a copy, and the improved mission is relaunched from the debrief in one click.</span><span lang="es">El ciclo completo de una misión, en un solo flujo. Se lanza la misión en el simulador táctico y el Recorder lo captura todo: DIS, HLA, bus ROS 2, voz de radio y vídeo, con marcadores en los momentos clave. La sesión pasa a la base de datos del debrief, donde el análisis es dinámico: resultado del enfrentamiento, detalle por entidad, línea de tiempo, eventos, sensores y comunicaciones, y gráficas. El asistente de IA añade las métricas y gráficas que le pidas, analiza lo ocurrido, recomienda qué mejorar y propone cambios concretos en la misión. Se aplican sobre una copia, y la misión mejorada se relanza desde el propio debrief con un clic.</span></p>
       </figure>
     </section>
 
